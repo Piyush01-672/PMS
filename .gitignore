@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# Passion Maths Study (PMS) — keep only project source on GitHub.
+# Everything below is either re-creatable (dependencies / build / test output)
+# or private (secrets, uploaded media, runtime backups, local tooling).
+# ---------------------------------------------------------------------------
+
+# Dependencies — re-install with `npm run install:all`
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.pnp.*
+
+# Build output — re-create with `npm run build`
+client/dist/
+dist/
+build/
+*.tsbuildinfo
+
+# Secrets — keep the *.example templates, never the real .env files
+.env
+.env.*
+!.env.example
+
+# Runtime data (back these up separately — see README)
+server/uploads/*
+!server/uploads/.gitkeep
+server/backups/*
+!server/backups/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+
+# Test output — re-create with `npm test` / `npm run test:e2e`
+e2e-results/
+test-results/
+playwright-report/
+blob-report/
+coverage/
+.nyc_output/
+
+# Tool caches
+.cache/
+.vite/
+.turbo/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+
+# Local editor, OS and agent-tooling clutter
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+.claude/
+.kilo/
+.cursor/

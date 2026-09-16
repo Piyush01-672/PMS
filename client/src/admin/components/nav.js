@@ -1,0 +1,81 @@
+import {
+  Activity,
+  BookOpen,
+  CircleHelp,
+  DatabaseBackup,
+  FileText,
+  Footprints,
+  Gauge,
+  GraduationCap,
+  Image,
+  Languages,
+  LayoutTemplate,
+  Link2,
+  ListOrdered,
+  Megaphone,
+  Menu,
+  MonitorPlay,
+  NotebookPen,
+  PanelTop,
+  PenTool,
+  Route,
+  Search,
+  Settings,
+  Shapes,
+  Star,
+  UserCog,
+  Users,
+} from 'lucide-react';
+
+// Sidebar structure (admin-only UI chrome). Permissions hide what an account cannot use.
+export const NAV_GROUPS = [
+  {
+    label: 'Dashboard',
+    items: [{ to: '', label: 'Overview', icon: Gauge, end: true }],
+  },
+  {
+    label: 'Content',
+    items: [
+      { to: 'classes', label: 'Classes', icon: GraduationCap },
+      { to: 'chapters', label: 'Chapters (अध्याय)', icon: BookOpen },
+      { to: 'exercises', label: 'Exercises (प्रश्नावली)', icon: ListOrdered },
+      { to: 'questions', label: 'Questions', icon: CircleHelp },
+      { to: 'solutions', label: 'Solutions', icon: Route },
+      { to: 'notes', label: 'Notes', icon: NotebookPen },
+      { to: 'important-questions', label: 'Important Questions', icon: Star },
+      { to: 'templates', label: 'Templates', icon: Shapes },
+    ],
+  },
+  {
+    label: 'Media',
+    items: [
+      { to: 'media', label: 'Images & Media', icon: Image },
+      { to: 'videos', label: 'YouTube Videos', icon: MonitorPlay },
+      { to: 'diagrams', label: 'Diagrams & Graphs', icon: PenTool },
+    ],
+  },
+  {
+    label: 'Website',
+    items: [
+      { to: 'homepage', label: 'Homepage', icon: LayoutTemplate },
+      { to: 'settings', label: 'Website Settings', icon: Settings, permission: 'settings:write' },
+      { to: 'header', label: 'Header', icon: PanelTop, permission: 'settings:write' },
+      { to: 'navigation', label: 'Navigation', icon: Menu, permission: 'settings:write' },
+      { to: 'footer', label: 'Footer', icon: Footprints, permission: 'settings:write' },
+      { to: 'pages', label: 'Pages', icon: FileText },
+      { to: 'related', label: 'Related Content', icon: Link2 },
+      { to: 'seo', label: 'SEO', icon: Search },
+      { to: 'language', label: 'Language', icon: Languages, permission: 'settings:write' },
+      { to: 'ads', label: 'Ad Spaces', icon: Megaphone, permission: 'settings:write' },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { to: 'admins', label: 'Users / Admins', icon: Users, permission: 'users:manage' },
+      { to: 'activity', label: 'Activity Logs', icon: Activity, permission: 'activity:read' },
+      { to: 'backups', label: 'Backup / Settings', icon: DatabaseBackup, permission: 'backup:read' },
+      { to: 'account', label: 'My Account & 2FA', icon: UserCog },
+    ],
+  },
+];

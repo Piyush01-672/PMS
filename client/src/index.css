@@ -1,0 +1,289 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Inter Variable", "Noto Sans Devanagari Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans Variable", "Noto Sans Devanagari Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Code", monospace;
+
+  --color-ink: var(--ink);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-saffron: var(--saffron);
+  --color-saffron-soft: var(--saffron-soft);
+  --color-indigo: var(--indigo);
+  --color-indigo-soft: var(--indigo-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-paper: var(--paper);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #ff7a00;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+  --color-slate-850: #152033;
+  --color-slate-950: #0b1120;
+  --shadow-card: 0 4px 14px 0 rgba(15, 23, 42, 0.05);
+  --shadow-glow: 0 10px 25px -5px rgba(255, 122, 0, 0.25);
+  --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* PMS palette — brick red from the logo, saffron highlights, indigo for mathematics, calm paper surfaces.
+   brand / accent / ink are overridable from Admin → Website Settings → Theme. */
+:root {
+  --brand: #b83a2e;
+  --brand-foreground: #ffffff;
+  --brand-soft: #fbeceA;
+  --saffron: #f59e0b;
+  --saffron-soft: #fff7e6;
+  --indigo: #4f46e5;
+  --indigo-soft: #eef2ff;
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --warning: #b45309;
+  --warning-soft: #fffbeb;
+  --ink: #1b1d2a;
+  --paper: #f8fafc;
+
+  --background: #f8fafc;
+  --foreground: #1b1d2a;
+  --card: #ffffff;
+  --card-foreground: #1b1d2a;
+  --popover: #ffffff;
+  --popover-foreground: #1b1d2a;
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #5b6474;
+  --accent: #f1f5f9;
+  --accent-foreground: #1e293b;
+  --destructive: #dc2626;
+  --border: #e2e8f0;
+  --input: #dbe2ea;
+  --ring: color-mix(in oklab, var(--brand) 55%, white);
+  --chart-1: #b83a2e;
+  --chart-2: #4f46e5;
+  --chart-3: #f59e0b;
+  --chart-4: #047857;
+  --chart-5: #64748b;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1b1d2a;
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #1b1d2a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: var(--ring);
+  --header-height: 4rem;
+}
+
+.dark {
+  --brand: #f07162;
+  --brand-foreground: #1b0f0d;
+  --brand-soft: #2a1614;
+  --saffron: #fbbf24;
+  --saffron-soft: #2a2110;
+  --indigo: #a5b4fc;
+  --indigo-soft: #1c1f3b;
+  --success: #6ee7b7;
+  --success-soft: #0f261e;
+  --warning: #fcd34d;
+  --warning-soft: #2a220f;
+  --ink: #e5e7eb;
+  --paper: #0b1120;
+
+  --background: #0b1120;
+  --foreground: #e5e7eb;
+  --card: #111827;
+  --card-foreground: #e5e7eb;
+  --popover: #111827;
+  --popover-foreground: #e5e7eb;
+  --secondary: #1f2937;
+  --secondary-foreground: #e5e7eb;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #1f2937;
+  --accent-foreground: #e5e7eb;
+  --destructive: #f87171;
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.15);
+  --sidebar: #0f172a;
+  --sidebar-foreground: #e5e7eb;
+  --sidebar-accent: #1f2937;
+  --sidebar-accent-foreground: #e5e7eb;
+  --sidebar-border: rgb(255 255 255 / 0.1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+  }
+  :lang(hi) body,
+  [lang="hi"] {
+    line-height: 1.7;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Rendered rich text from the CMS (questions, solutions, notes, pages). */
+  .rich {
+    @apply text-[15.5px] leading-[1.8] text-foreground sm:text-base;
+    overflow-wrap: anywhere;
+  }
+  .rich > * + * { @apply mt-3; }
+  .rich h2 { @apply mt-6 text-xl font-bold; }
+  .rich h3 { @apply mt-5 text-lg font-semibold; }
+  .rich h4 { @apply mt-4 font-semibold; }
+  .rich ul { @apply list-disc space-y-1.5 ps-6; }
+  .rich ol { @apply list-decimal space-y-1.5 ps-6; }
+  .rich li::marker { color: var(--brand); font-weight: 600; }
+  .rich a { @apply font-medium text-brand underline underline-offset-4 hover:opacity-80; }
+  .rich strong { @apply font-semibold; }
+  .rich mark { @apply rounded bg-saffron-soft px-1 text-foreground; }
+  .rich blockquote { @apply border-s-4 border-indigo/40 bg-indigo-soft/60 px-4 py-2 italic; }
+  .rich code { @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em]; }
+  .rich hr { @apply my-6; }
+  .rich img { @apply h-auto max-w-full rounded-lg; }
+  .rich .table-scroll { @apply my-4 overflow-x-auto rounded-lg border; }
+  .rich table { @apply w-full border-collapse text-sm; }
+  .rich th { @apply border-b bg-muted px-3 py-2 text-start font-semibold; }
+  .rich td { @apply border-b px-3 py-2 align-top; }
+  .rich tr:last-child td { @apply border-b-0; }
+
+  .katex { font-size: 1.08em; }
+  .katex-display {
+    margin: 0.75rem 0 !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.35rem 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .math-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .bg-dots {
+    background-image: radial-gradient(color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .grid-pattern {
+    background-image: radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .heading-font {
+    font-family: var(--font-heading);
+  }
+  .math-formula {
+    font-family: var(--font-mono);
+  }
+
+  /* TipTap editor surface (admin) */
+  .tiptap-editor .ProseMirror {
+    @apply min-h-28 px-3 py-2.5 outline-none;
+  }
+  .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    @apply pointer-events-none float-left h-0 text-muted-foreground;
+  }
+  .tiptap-editor .ProseMirror table { @apply my-2 w-full table-fixed border-collapse; }
+  .tiptap-editor .ProseMirror td,
+  .tiptap-editor .ProseMirror th { @apply relative border px-2 py-1 align-top; }
+  .tiptap-editor .ProseMirror .selectedCell::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0 bg-indigo/10;
+  }
+}

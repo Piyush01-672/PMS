@@ -1,0 +1,73 @@
+import {
+  Award,
+  BookOpen,
+  Calculator,
+  ChartLine,
+  CircleCheck,
+  CircleHelp,
+  Clock,
+  DraftingCompass,
+  FileQuestion,
+  GraduationCap,
+  HeartHandshake,
+  Image,
+  Languages,
+  Lightbulb,
+  ListChecks,
+  ListOrdered,
+  NotebookPen,
+  PenTool,
+  Route,
+  Search,
+  ShieldCheck,
+  Sigma,
+  Sparkles,
+  SquareFunction,
+  Star,
+  Target,
+  Triangle,
+  Trophy,
+  Users,
+  Video,
+} from 'lucide-react';
+
+// Icons the admin can choose for sections/cards (explicit list keeps the bundle small).
+export const ICONS = {
+  award: Award,
+  'book-open': BookOpen,
+  calculator: Calculator,
+  'chart-line': ChartLine,
+  'circle-check': CircleCheck,
+  'circle-help': CircleHelp,
+  clock: Clock,
+  'drafting-compass': DraftingCompass,
+  'file-question': FileQuestion,
+  'graduation-cap': GraduationCap,
+  'heart-handshake': HeartHandshake,
+  image: Image,
+  languages: Languages,
+  lightbulb: Lightbulb,
+  'list-checks': ListChecks,
+  'list-ordered': ListOrdered,
+  'notebook-pen': NotebookPen,
+  'pen-tool': PenTool,
+  route: Route,
+  search: Search,
+  'shield-check': ShieldCheck,
+  sigma: Sigma,
+  sparkles: Sparkles,
+  'square-function': SquareFunction,
+  star: Star,
+  target: Target,
+  triangle: Triangle,
+  trophy: Trophy,
+  users: Users,
+  video: Video,
+};
+
+export const ICON_NAMES = Object.keys(ICONS);
+
+export function Icon({ name, ...props }) {
+  const Component = ICONS[name] || Sparkles;
+  return <Component aria-hidden="true" {...props} />;
+}
