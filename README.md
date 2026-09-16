@@ -201,4 +201,3 @@ Rehearse a restore on a staging copy regularly.
 - [ ] Owner has changed every master password and regenerated `JWT_SECRET`, `CSRF_SECRET` and `ENCRYPTION_KEY` (this signs everyone out)
 - [ ] Credentials handed over through a password manager, never a plain-text document
 - [ ] Backup schedule confirmed, second backup location confirmed, one test restore completed
-# PassionMathStudy
