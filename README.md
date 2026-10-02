@@ -47,12 +47,19 @@ npm run install:all
    npm run seed
    ```
    `npm run seed -- --reset` (run inside `server/`) wipes website content and reloads the starter set. Admin accounts, activity logs and backups are kept.
-4. Start both apps:
+4. Start both apps (2 separate terminals):
    ```bash
+   # Terminal 1: Server (API)
+   cd server
+   npm run dev
+
+   # Terminal 2: Client (Website + CMS)
+   cd client
    npm run dev
    ```
+   *Alternatively, run both together from root with `npm run dev` (or `npm run dev:server` / `npm run dev:client`).*
    - Website: http://localhost:5173
-   - Admin: http://localhost:5173/pms-control-room/login (or your `ADMIN_PATH`)
+   - Admin: http://localhost:5173/login (or http://localhost:5173/admin)
 
 Sign in with the seed owner account, then go to **My Account & 2FA** and change the password and turn on two-factor authentication.
 

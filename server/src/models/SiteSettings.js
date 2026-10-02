@@ -86,7 +86,7 @@ const siteSettingsSchema = new Schema(
     contact: {
       email: { type: String, default: '', maxlength: 200 },
       phone: { type: String, default: '', maxlength: 40 },
-      whatsapp: { type: String, default: '', maxlength: 40 },
+      whatsapp: { type: String, default: '', maxlength: 200 },
       address: textL10n(),
     },
     social: [

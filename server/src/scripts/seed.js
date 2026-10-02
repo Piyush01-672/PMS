@@ -78,6 +78,7 @@ async function run() {
     apGraph: await uploadAsset({ buffer: Buffer.from(apGraphSvg), name: 'ap-3-8-13-graph.svg', title: 'Graph of AP 3, 8, 13, …', kind: 'graph', alt: { hi: 'AP 3, 8, 13, … के पदों का ग्राफ', en: 'Graph of the terms of the AP 3, 8, 13, …' } }),
   };
 
+  await SiteSettings.deleteMany({ key: 'site' });
   await SiteSettings.create({
     key: 'site',
     brand: {
@@ -105,6 +106,15 @@ async function run() {
       badges: [{ hi: 'NCERT 2024-25', en: 'NCERT 2024-25' }, { hi: 'हिंदी & English', en: 'Hindi & English' }],
     },
     terminology: DEFAULT_TERMINOLOGY,
+    social: [
+      { platform: 'whatsapp', url: 'https://whatsapp.com/channel/0029Vb8ePtV6xCSKZnaBfu0N' },
+      { platform: 'youtube', url: 'https://youtube.com/@passionmathsstudy?si=tc1BLKqOF3RTZnnc' },
+      { platform: 'instagram', url: 'https://www.instagram.com/nitishkumar65462?stkn=dXJ5N3M0c2U1NDhl' },
+      { platform: 'facebook', url: 'https://www.facebook.com/share/19ZEaJ72X5/' },
+    ],
+    contact: {
+      whatsapp: 'https://whatsapp.com/channel/0029Vb8ePtV6xCSKZnaBfu0N',
+    },
     seo: {
       titleTemplate: '%s | Passion Maths Study',
       defaultTitle: { hi: 'NCERT गणित हल कक्षा 6 से 12', en: 'NCERT Mathematics Solutions Class 6 to 12' },

@@ -286,4 +286,18 @@
     content: "";
     @apply pointer-events-none absolute inset-0 bg-indigo/10;
   }
+
+  /* Google Translate seamless integration styling */
+  .goog-te-banner-frame,
+  .skiptranslate:not(#google_translate_hidden_holder),
+  #goog-gt-tt {
+    display: none !important;
+  }
+  body {
+    top: 0px !important;
+  }
+  .goog-text-highlight {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 }

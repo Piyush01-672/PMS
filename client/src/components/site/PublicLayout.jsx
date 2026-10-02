@@ -5,6 +5,7 @@ import { failSafe, gsap, shouldAnimate, useGSAP } from '@/lib/motion';
 import { useSiteQuery } from '@/lib/site';
 import { AdSlot } from './AdSlot.jsx';
 import { AnnouncementBar } from './AnnouncementBar.jsx';
+import { FloatingLanguageWidget } from './FloatingLanguageWidget.jsx';
 import { Footer } from './Footer.jsx';
 import { Header } from './Header.jsx';
 import { ErrorState, PageSkeleton } from './States.jsx';
@@ -53,6 +54,7 @@ export default function PublicLayout() {
             </main>
             <AdSlot placement="aboveFooter" />
             <Footer />
+            <FloatingLanguageWidget />
           </>
         )}
       </div>

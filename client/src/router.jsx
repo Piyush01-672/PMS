@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import { Navigate, createBrowserRouter } from 'react-router';
 import { ADMIN_PATH } from '@/lib/config';
 import Root from '@/Root.jsx';
 import PublicLayout from '@/components/site/PublicLayout.jsx';
@@ -24,6 +24,12 @@ export const router = createBrowserRouter([
     errorElement: <RouteError />,
     hydrateFallbackElement: <BootSkeleton />,
     children: [
+      { path: 'login', lazy: lazyPage(() => import('@/admin/pages/LoginPage.jsx')) },
+      { path: 'admin/login', lazy: lazyPage(() => import('@/admin/pages/LoginPage.jsx')) },
+      { path: 'admin', element: <Navigate to={ADMIN_PATH} replace /> },
+      { path: 'admin/*', element: <Navigate to={ADMIN_PATH} replace /> },
+      { path: `${ADMIN_PATH}/login`, lazy: lazyPage(() => import('@/admin/pages/LoginPage.jsx')) },
+      { path: `${ADMIN_PATH}/*`, lazy: lazyPage(() => import('@/admin/AdminApp.jsx')) },
       {
         element: <PublicLayout />,
         children: [
@@ -32,8 +38,6 @@ export const router = createBrowserRouter([
           { path: '*', lazy: lazyPage(() => import('@/pages/ContentPage.jsx')) },
         ],
       },
-      { path: `${ADMIN_PATH}/login`, lazy: lazyPage(() => import('@/admin/pages/LoginPage.jsx')) },
-      { path: `${ADMIN_PATH}/*`, lazy: lazyPage(() => import('@/admin/AdminApp.jsx')) },
     ],
   },
 ]);

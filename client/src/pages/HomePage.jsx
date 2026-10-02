@@ -2,10 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { LayoutTemplate } from 'lucide-react';
 import { useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router';
+import { DefaultHomeContent } from '@/components/home/DefaultHomeContent.jsx';
 import { SectionRenderer } from '@/components/home/SectionRenderer.jsx';
 import { PreviewBanner } from '@/components/site/PreviewBanner.jsx';
 import { Seo } from '@/components/site/Seo.jsx';
-import { EmptyState, ErrorState, PageSkeleton } from '@/components/site/States.jsx';
+import { PageSkeleton } from '@/components/site/States.jsx';
 import { get } from '@/lib/api';
 import { useL10n } from '@/lib/i18n';
 import { prefersReducedMotion } from '@/lib/motion';
@@ -35,8 +36,8 @@ export default function HomePage() {
   return (
     <>
       <Seo
-        title={t(route.title) || t(settings.seo?.defaultTitle)}
-        description={t(route.description) || t(settings.seo?.defaultDescription)}
+        title={t(route.title) || t(settings.seo?.defaultTitle) || 'NCERT गणित हल कक्षा 6 से 12 | Passion Maths Study'}
+        description={t(route.description) || t(settings.seo?.defaultDescription) || 'Class 6 to 12 NCERT Mathematics step-by-step solutions, formulas and notes in Hindi and English.'}
         canonical="/"
         robots={route.robots}
         image={route.ogImage?.url}
@@ -52,19 +53,14 @@ export default function HomePage() {
       />
       {preview && <PreviewBanner />}
       {home.isPending && <PageSkeleton />}
-      {home.isError && (
-        <div className="container-page py-16">
-          <ErrorState error={home.error} onRetry={home.refetch} />
-        </div>
-      )}
-      {home.isSuccess &&
-        (home.data.sections.length ? (
+      {home.isError && <DefaultHomeContent />}
+      {home.isSuccess && (
+        home.data?.sections?.length ? (
           <SectionRenderer sections={home.data.sections} />
         ) : (
-          <div className="container-page py-16">
-            <EmptyState icon={LayoutTemplate} title="Homepage has no sections yet" description="Add sections from Admin → Homepage." />
-          </div>
-        ))}
+          <DefaultHomeContent />
+        )
+      )}
     </>
   );
 }

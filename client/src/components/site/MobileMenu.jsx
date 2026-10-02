@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { useL10n } from '@/lib/i18n';
 import { useSite, useTerm } from '@/lib/site';
 import { cn } from '@/lib/utils';
-import { LanguageSwitcher } from './LanguageSwitcher.jsx';
 import { Logo } from './Logo.jsx';
 import { SearchBar } from './SearchBar.jsx';
 import { SmartLink } from './SmartLink.jsx';
@@ -87,7 +86,18 @@ export function MobileMenu() {
     setOpen(false);
   }, [location.pathname, location.hash]);
 
-  const classes = [...(site?.classes || [])].sort((a, b) => b.number - a.number);
+  const rawClasses = site?.classes?.length
+    ? site.classes
+    : [
+        { _id: 'c12', number: 12, url: '/class-12/maths', subjects: [{ _id: 's12', url: '/class-12/maths' }] },
+        { _id: 'c11', number: 11, url: '/class-11/maths', subjects: [{ _id: 's11', url: '/class-11/maths' }] },
+        { _id: 'c10', number: 10, url: '/class-10/maths', subjects: [{ _id: 's10', url: '/class-10/maths' }] },
+        { _id: 'c9', number: 9, url: '/class-9/maths', subjects: [{ _id: 's9', url: '/class-9/maths' }] },
+        { _id: 'c8', number: 8, url: '/class-8/maths', subjects: [{ _id: 's8', url: '/class-8/maths' }] },
+        { _id: 'c7', number: 7, url: '/class-7/maths', subjects: [{ _id: 's7', url: '/class-7/maths' }] },
+        { _id: 'c6', number: 6, url: '/class-6/maths', subjects: [{ _id: 's6', url: '/class-6/maths' }] },
+      ];
+  const classes = [...rawClasses].sort((a, b) => b.number - a.number);
   const links = (site?.navigation?.header || []).filter((item) => item.type === 'link');
 
   return (
@@ -124,15 +134,11 @@ export function MobileMenu() {
 
                 <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4">
                   <SearchBar onNavigate={() => setOpen(false)} />
-                  {site?.settings?.header?.showLanguageSwitch !== false && (
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-sm font-medium text-muted-foreground">भाषा / Language</span>
-                      <LanguageSwitcher />
-                    </div>
-                  )}
+
+
 
                   {links.length > 0 && (
-                    <nav aria-label="Main" className="mt-5 grid grid-cols-2 gap-2">
+                    <nav aria-label="Main" className="mt-4 grid grid-cols-2 gap-2">
                       {links.map((item) => (
                         <SmartLink
                           key={item._id}
@@ -152,6 +158,16 @@ export function MobileMenu() {
                       <ClassAccordion key={cls._id} cls={cls} open={expanded === cls._id} onToggle={() => setExpanded((id) => (id === cls._id ? null : cls._id))} />
                     ))}
                   </ul>
+
+                  <div className="mt-8 border-t pt-4">
+                    <Link
+                      to="/login"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-dashed py-2.5 text-xs font-semibold text-muted-foreground hover:border-brand hover:text-brand"
+                    >
+                      PMS Admin Control Room
+                    </Link>
+                  </div>
                 </div>
               </motion.aside>
             </DialogPrimitive.Content>
