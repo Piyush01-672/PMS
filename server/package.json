@@ -34,6 +34,7 @@
     "otplib": "^13.5.0",
     "qrcode": "^1.5.4",
     "sanitize-html": "^2.17.7",
+    "update": "^0.7.4",
     "zod": "^4.6.4"
   },
   "devDependencies": {

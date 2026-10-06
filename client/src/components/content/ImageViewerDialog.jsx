@@ -91,21 +91,20 @@ export default function ImageViewerDialog({ state, onClose, onIndex }) {
 
   return (
     <DialogPrimitive.Root open={Boolean(state)} onOpenChange={(open) => !open && onClose()}>
-      <AnimatePresence>
-        {state && current && (
-          <DialogPrimitive.Portal forceMount>
-            <DialogPrimitive.Overlay asChild forceMount>
-              <motion.div className="fixed inset-0 z-[70] bg-black/90" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
-            </DialogPrimitive.Overlay>
-            <DialogPrimitive.Content asChild forceMount aria-describedby={undefined}>
-              <motion.div
-                ref={containerRef}
-                className="fixed inset-0 z-[70] flex flex-col bg-black/90 outline-none"
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.18 }}
-              >
+      {state && current && (
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay asChild>
+            <motion.div className="fixed inset-0 z-[70] bg-black/90" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+          </DialogPrimitive.Overlay>
+          <DialogPrimitive.Content asChild aria-describedby={undefined}>
+            <motion.div
+              ref={containerRef}
+              className="fixed inset-0 z-[70] flex flex-col bg-black/90 outline-none"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.18 }}
+            >
                 <DialogPrimitive.Title className="sr-only">{current.alt || 'Image viewer'}</DialogPrimitive.Title>
                 <TransformWrapper key={index} initialScale={1} minScale={1} maxScale={6} centerOnInit wheel={{ step: 0.2 }} doubleClick={{ mode: 'toggle', step: 1.5 }}>
                   <div className="flex items-center justify-between gap-3 p-3 sm:p-4">
@@ -156,7 +155,6 @@ export default function ImageViewerDialog({ state, onClose, onIndex }) {
             </DialogPrimitive.Content>
           </DialogPrimitive.Portal>
         )}
-      </AnimatePresence>
     </DialogPrimitive.Root>
   );
 }

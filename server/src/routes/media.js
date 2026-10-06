@@ -2,10 +2,10 @@ import express from 'express';
 import multer from 'multer';
 import { env } from '../config/env.js';
 import { cache } from '../lib/cache.js';
-import { detectImage } from '../lib/imageInfo.js';
+import { detectFile, isImage, isPdf } from '../lib/imageInfo.js';
 import { asString, isObjectId, parsePagination } from '../lib/request.js';
 import { sanitizeSvg } from '../lib/sanitize.js';
-import { removeImage, storeImage } from '../lib/storage.js';
+import { removeFile, storeFile } from '../lib/storage.js';
 import { Media } from '../models/index.js';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { ApiError } from '../middleware/error.js';
@@ -15,13 +15,13 @@ import { escapeRegex } from '../utils/slug.js';
 
 const router = express.Router();
 const KINDS = Media.schema.path('kind').enumValues;
-const ALLOWED_EXT = /\.(png|jpe?g|webp|svg)$/i;
+const ALLOWED_EXT = /\.(png|jpe?g|webp|svg|pdf)$/i;
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: env.MAX_UPLOAD_MB * 1024 * 1024, files: 10, fields: 30 },
   fileFilter: (req, file, cb) => {
-    if (!ALLOWED_EXT.test(file.originalname)) return cb(new ApiError(400, `${file.originalname}: only PNG, JPG, JPEG, WEBP and SVG images are allowed`));
+    if (!ALLOWED_EXT.test(file.originalname)) return cb(new ApiError(400, `${file.originalname}: only PNG, JPG, JPEG, WEBP, SVG images and PDF files are allowed`));
     cb(null, true);
   },
 });
@@ -43,14 +43,20 @@ function metadataFrom(body = {}) {
 }
 
 async function prepareFile(file) {
-  const info = detectImage(file.buffer);
-  if (!info) throw new ApiError(400, `${file.originalname}: file content is not a valid PNG, JPG, WEBP or SVG image`);
+  const info = detectFile(file.buffer);
+  if (!info) throw new ApiError(400, `${file.originalname}: file content is not a valid PNG, JPG, WEBP, SVG image or PDF`);
   let buffer = file.buffer;
-  if (info.format === 'svg') {
+  if (isImage(info) && info.format === 'svg') {
     buffer = sanitizeSvg(file.buffer);
     if (!buffer) throw new ApiError(400, `${file.originalname}: SVG could not be sanitized safely`);
   }
   return { buffer, info };
+}
+
+function defaultKindFor(info, userKind) {
+  if (userKind && KINDS.includes(userKind)) return userKind;
+  if (isPdf(info)) return 'pdf';
+  return 'image';
 }
 
 async function loadMedia(id) {
@@ -97,7 +103,8 @@ router.post('/upload', requireAuth, requirePermission('media:write'), upload.arr
   for (const file of files) {
     try {
       const { buffer, info } = await prepareFile(file);
-      const stored = await storeImage({ buffer, info, name: meta.title || file.originalname, kind: meta.kind || 'image' });
+      const kind = defaultKindFor(info, meta.kind);
+      const stored = await storeFile({ buffer, info, name: meta.title || file.originalname, kind });
       const media = await Media.create({
         ...stored,
         mimeType: info.mimeType,
@@ -106,7 +113,7 @@ router.post('/upload', requireAuth, requirePermission('media:write'), upload.arr
         alt: meta.alt || {},
         caption: meta.caption || {},
         description: meta.description || '',
-        kind: meta.kind || 'image',
+        kind,
         tags: meta.tags || [],
         uploadedBy: req.admin._id,
       });
@@ -144,10 +151,11 @@ router.post('/:id/replace', requireAuth, requirePermission('media:write'), uploa
   if (!req.file) throw new ApiError(400, 'No file uploaded. Use the "file" field.');
   const { buffer, info } = await prepareFile(req.file);
   const previous = { provider: media.provider, publicId: media.publicId };
-  const stored = await storeImage({ buffer, info, name: media.title || req.file.originalname, kind: media.kind });
-  media.set({ ...stored, mimeType: info.mimeType, originalName: req.file.originalname.slice(0, 300), updatedBy: req.admin._id });
+  const kind = defaultKindFor(info, media.kind);
+  const stored = await storeFile({ buffer, info, name: media.title || req.file.originalname, kind });
+  media.set({ ...stored, mimeType: info.mimeType, originalName: req.file.originalname.slice(0, 300), kind, updatedBy: req.admin._id });
   await media.save();
-  await removeImage(previous).catch((err) => console.error('[media] failed to remove replaced file', err.message));
+  await removeFile(previous).catch((err) => console.error('[media] failed to remove replaced file', err.message));
   cache.invalidate();
   await logActivity(req, { action: 'media_replace', entityType: 'Media', entityId: media._id, entityLabel: media.title });
   res.json(media);
@@ -157,9 +165,9 @@ router.delete('/:id', requireAuth, requirePermission('media:delete'), async (req
   const media = await loadMedia(req.params.id);
   const usage = await findMediaUsage(media._id);
   if (usage.length && req.query.force !== 'true') {
-    throw new ApiError(409, `This image is used in ${usage.length} place(s). Remove it there first, or confirm force delete.`, { usage });
+    throw new ApiError(409, `This file is used in ${usage.length} place(s). Remove it there first, or confirm force delete.`, { usage });
   }
-  await removeImage(media).catch((err) => console.error('[media] failed to remove file', err.message));
+  await removeFile(media).catch((err) => console.error('[media] failed to remove file', err.message));
   await media.deleteOne();
   cache.invalidate();
   await logActivity(req, { action: 'media_delete', entityType: 'Media', entityId: media._id, entityLabel: media.title, severity: 'warning', meta: { forced: usage.length > 0 } });

@@ -13,6 +13,7 @@ import {
 import { useL10n } from '@/lib/i18n';
 import { useSite, useTerm } from '@/lib/site';
 import { cn } from '@/lib/utils';
+import { LanguageSwitcher } from './LanguageSwitcher.jsx';
 import { Logo } from './Logo.jsx';
 import { MobileMenu } from './MobileMenu.jsx';
 import { SearchBar } from './SearchBar.jsx';
@@ -162,6 +163,7 @@ export function Header() {
         </NavigationMenu>
 
         <div className="ml-auto flex items-center gap-2">
+          {header.showLanguageSwitcher !== false && <LanguageSwitcher />}
           {header.showSearch !== false && (
             <>
               <SearchBar className="hidden w-56 md:block xl:w-72" />

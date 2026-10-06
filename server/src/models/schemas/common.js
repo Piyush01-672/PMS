@@ -47,7 +47,7 @@ export const SeoSchema = new Schema(
 );
 export const seo = () => ({ type: SeoSchema, default: () => ({}) });
 
-export const MEDIA_KINDS = ['image', 'figure', 'diagram', 'graph', 'construction'];
+export const MEDIA_KINDS = ['image', 'figure', 'diagram', 'graph', 'construction', 'pdf', 'notes', 'video', 'other'];
 
 export const AttachmentSchema = new Schema({
   media: { type: ObjectId, ref: 'Media', required: true },

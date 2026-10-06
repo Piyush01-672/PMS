@@ -62,8 +62,15 @@ export function createApp() {
       immutable: true,
       index: false,
       dotfiles: 'deny',
-      setHeaders: (res) => {
-        res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+      setHeaders: (res, filePath) => {
+        const lower = String(filePath || '').toLowerCase();
+        if (lower.endsWith('.pdf')) {
+          res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'self'; object-src 'self'");
+        } else if (/\.(mp4|webm|mov|m4v|ogv)$/i.test(lower)) {
+          res.setHeader('Content-Security-Policy', "default-src 'none'; media-src 'self'; frame-ancestors 'self'");
+        } else {
+          res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+        }
         res.setHeader('X-Content-Type-Options', 'nosniff');
       },
     }),

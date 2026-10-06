@@ -20,7 +20,7 @@ const mediaSchema = new mongoose.Schema(
     description: { type: String, default: '', trim: true, maxlength: 2000 },
     kind: {
       type: String,
-      enum: ['image', 'figure', 'diagram', 'graph', 'construction', 'logo', 'thumbnail', 'other'],
+      enum: ['image', 'figure', 'diagram', 'graph', 'construction', 'logo', 'thumbnail', 'pdf', 'notes', 'video', 'other'],
       default: 'image',
       index: true,
     },
