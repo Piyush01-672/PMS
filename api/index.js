@@ -7,9 +7,7 @@ import { SiteSettings } from '../server/src/models/index.js';
 let appInstance = null;
 
 async function getApp() {
-  if (mongoose.connection.readyState !== 1) {
-    await connectDB(env.MONGODB_URI);
-  }
+  await connectDB(env.MONGODB_URI);
   if (!appInstance) {
     await SiteSettings.getSingleton();
     appInstance = createApp();
