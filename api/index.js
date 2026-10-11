@@ -23,9 +23,12 @@ export default async function handler(req, res) {
     return app(req, res);
   } catch (error) {
     console.error('[vercel-api] Error processing request:', error);
+    const maskedUri = env.MONGODB_URI ? env.MONGODB_URI.replace(/\/\/[^@]*@/, '//***@') : 'NOT_SET';
     return res.status(500).json({
       error: 'Internal Server Error',
       message: error?.message || 'Server error',
+      mongoReadyState: mongoose.connection.readyState,
+      targetDb: maskedUri,
     });
   }
 }
