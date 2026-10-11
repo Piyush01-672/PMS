@@ -175,6 +175,19 @@ Recommended hosting:
 - Add a rate-limiting rule for `/api/auth/*` and optionally restrict `ADMIN_PATH` with Cloudflare Access.
 - Keep `TRUST_PROXY=1` (one proxy hop) so rate limits and logs use the real client IP.
 
+### Vercel backend-only deployment
+
+The backend has a Vercel Function entry point in `server/api/index.js`, which adapts requests to the existing Express app and database-backed routes. For a separate Vercel backend project:
+
+- Set **Root Directory** to `server`. Clear any custom Install Command, Build Command, and Output Directory that reference `client`; use the default install behavior and leave build/output overrides unset. `server/vercel.json` routes requests to the function. The root `vercel.json` is for the separate client project and must not be used for this backend project.
+- Configure the existing production server environment variables in the Vercel project settings. Use a reachable MongoDB URI, production secrets, the public site URL, and the correct client origins. Never copy `.env` contents into source control.
+- Admin sessions are MongoDB-backed, but the current rate limiters and content caches are in-process. Vercel instances do not share them: use Vercel Firewall/platform rate limiting for global protection, and a shared cache or accept per-instance cache TTLs for consistent content freshness.
+- Use durable Cloudinary storage for media. Vercel Functions do not provide persistent local uploads or backup files, and they cannot keep the in-process `node-cron` scheduler running. Schedule backups outside the function and store them in durable external storage; this application's current local backup/restore files are not a durable Vercel backup system.
+- Vercel also limits request bodies, so this application's multi-megabyte and 256 MB video upload routes are not compatible with direct uploads through a Function. Large uploads require direct-to-storage uploads or a long-running server.
+- The SEO page renderer reads `client/dist/index.html`. A backend project rooted at `server` does not build or contain that client artifact, so it cannot serve the current SEO-rendered content pages by itself. `robots.txt` and `sitemap.xml` still use the database, but preserving SEO page responses requires routing those page requests to a deployment that has both the built client template and the backend.
+
+Use a long-running Node host (for example, a container/VM or a service host that runs `npm start`) when the deployment must preserve the current scheduler, local backup/restore behavior, large uploads, and SEO-rendered pages in one Express application. Vercel can host the API Function only after the persistence, scheduling, upload, and SEO constraints above are addressed; a successful Vercel build alone does not verify those runtime requirements.
+
 Ads: create the Privacy Policy (and a consent banner where required) before switching on AdSense in **Admin → Ad Spaces**. Ad code runs in a sandboxed iframe with reserved height, so it never covers questions or shifts the layout.
 
 ## 9. Backups & disaster recovery
