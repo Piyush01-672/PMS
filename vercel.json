@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "client/dist",
   "functions": {
     "api/index.js": {
       "maxDuration": 30
@@ -23,10 +21,6 @@
     {
       "source": "/sitemap.xml",
       "destination": "/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ]
 }
