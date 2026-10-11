@@ -129,10 +129,10 @@ export function HeroSection({ section }) {
   const descriptionText = isDefaultSeedDesc ? defaultDescription : t(section.description);
 
   const defaultPopularTags = [
-    { label: 'प्रश्नावली 5.2 यूक्लिड', query: 'प्रश्नावली 5.2 यूक्लिड' },
-    { label: 'त्रिकोणमिति कक्षा 10', query: 'त्रिकोणमिति कक्षा 10' },
-    { label: 'पाइथागोरस प्रमेय', query: 'पाइथागोरस प्रमेय' },
-    { label: 'समाकलन Class 12', query: 'समाकलन Class 12' },
+    { label: 'कक्षा 10 प्रश्नावली 5.2', query: 'कक्षा 10 प्रश्नावली 5.2' },
+    { label: 'समांतर श्रेढ़ी', query: 'समांतर श्रेढ़ी' },
+    { label: 'त्रिभुज', query: 'त्रिभुज' },
+    { label: 'रचना', query: 'रचना' },
   ];
   const popularTags =
     cfg.popularSearches && cfg.popularSearches.length > 0
@@ -186,7 +186,7 @@ export function HeroSection({ section }) {
               data-purpose="hero-badge"
             >
               <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-              <span>{t(section.badge) || 'NCERT 2024-25 नवीन पाठ्यक्रम • 100% निःशुल्क सम्पूर्ण हल'}</span>
+              <span>{t(section.badge) || 'NCERT 2024-25 • हिंदी & English Medium'}</span>
             </div>
 
             {/* Main Headline */}
@@ -222,7 +222,7 @@ export function HeroSection({ section }) {
                       type="search"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder={t(cfg.searchPlaceholder) || "सीधे खोजें: जैसे 'प्रश्नावली 5.2', 'कक्षा 10 त्रिकोणमिति', 'पाइथागोरस प्रमेय'..."}
+                      placeholder={t(cfg.searchPlaceholder) || "जैसे: कक्षा 10 प्रश्नावली 5.2, त्रिभुज, सूत्र…"}
                       className="w-full pl-10 pr-3 py-2.5 text-sm bg-transparent border-0 text-slate-800 dark:text-foreground placeholder-slate-400 dark:placeholder-slate-500 focus:ring-0 focus:outline-none"
                     />
                   </div>
@@ -269,8 +269,16 @@ export function HeroSection({ section }) {
                 <Download className="w-4 h-4 text-brand-500" />
                 <span>NCERT सूत्र बैंक डाउनलोड करें (PDF)</span>
               </button>
-              {section.buttons?.length > 0 && (
+              {section.buttons?.length > 0 ? (
                 <SectionButtons buttons={section.buttons} className="w-full sm:w-auto" />
+              ) : (
+                <a
+                  href="#classes"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#991b1b] hover:bg-[#7f1d1d] text-white font-bold px-6 py-3 rounded-lg text-sm shadow-md transition-all active:scale-95 cursor-pointer"
+                >
+                  <span>अपनी कक्षा चुनें</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
               )}
             </div>
           </div>
