@@ -25,5 +25,8 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "concurrently": "^10.0.5"
+  },
+  "overrides": {
+    "htmlparser2": "9.1.0"
   }
 }
