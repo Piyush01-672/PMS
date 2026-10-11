@@ -2,6 +2,8 @@ import express from 'express';
 import { hasPermission } from '../lib/permissions.js';
 import {
   ActivityLog,
+  Announcement,
+  Book,
   Chapter,
   ClassLevel,
   Exercise,
@@ -10,8 +12,10 @@ import {
   Note,
   Page,
   Question,
+  Resource,
   Section,
   Solution,
+  Topic,
   Video,
 } from '../models/index.js';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
@@ -22,13 +26,17 @@ const router = express.Router();
 const CONTENT = [
   ['classes', 'Class', ClassLevel],
   ['chapters', 'Chapter', Chapter],
+  ['topics', 'Topic', Topic],
   ['exercises', 'Exercise', Exercise],
   ['questions', 'Question', Question],
   ['notes', 'Note', Note],
+  ['resources', 'Resource & PDF', Resource],
+  ['books', 'Reference Book', Book],
   ['important-questions', 'Important Question', ImportantQuestion],
   ['pages', 'Page', Page],
   ['sections', 'Homepage Section', Section],
 ];
+
 
 router.get('/', requireAuth, requirePermission('content:read'), async (req, res) => {
   const now = new Date();
@@ -42,12 +50,13 @@ router.get('/', requireAuth, requirePermission('content:read'), async (req, res)
   );
   const content = Object.fromEntries(statusRows);
 
-  const [solutions, media, images, diagrams, videos] = await Promise.all([
+  const [solutions, media, images, diagrams, videos, announcements] = await Promise.all([
     Solution.countDocuments(),
     Media.countDocuments(),
     Media.countDocuments({ kind: { $in: ['image', 'logo', 'thumbnail', 'other'] } }),
     Media.countDocuments({ kind: { $in: ['diagram', 'graph', 'construction', 'figure'] } }),
     Video.countDocuments(),
+    Announcement.countDocuments(),
   ]);
 
   const recentLists = await Promise.all(
@@ -86,10 +95,14 @@ router.get('/', requireAuth, requirePermission('content:read'), async (req, res)
   const totals = {
     classes: content.classes.total,
     chapters: content.chapters.total,
+    topics: content.topics?.total || 0,
     exercises: content.exercises.total,
     questions: content.questions.total,
     solutions,
     notes: content.notes.total,
+    resources: content.resources?.total || 0,
+    books: content.books?.total || 0,
+    announcements,
     importantQuestions: content['important-questions'].total,
     media,
     images,
@@ -99,6 +112,7 @@ router.get('/', requireAuth, requirePermission('content:read'), async (req, res)
     draft: statusRows.reduce((a, [, s]) => a + s.draft, 0),
     scheduled: statusRows.reduce((a, [, s]) => a + s.scheduled, 0),
   };
+
 
   res.set('Cache-Control', 'no-store');
   res.json({ totals, content, recent, security, activity });

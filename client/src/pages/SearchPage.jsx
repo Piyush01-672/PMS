@@ -12,7 +12,8 @@ import { useL10n } from '@/lib/i18n';
 import { useSite, useTerm } from '@/lib/site';
 import { cn } from '@/lib/utils';
 
-const TYPES = ['class', 'chapter', 'exercise', 'question', 'formula', 'note', 'importantQuestion'];
+const TYPES = ['class', 'chapter', 'topic', 'exercise', 'question', 'formula', 'resource', 'book', 'note', 'importantQuestion'];
+
 
 function Highlight({ text, terms }) {
   if (!text) return null;

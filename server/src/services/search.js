@@ -1,5 +1,6 @@
 import { stripHtml } from '../lib/sanitize.js';
 import {
+  Book,
   Chapter,
   ClassLevel,
   Exercise,
@@ -7,8 +8,10 @@ import {
   Note,
   Page,
   Question,
+  Resource,
   Solution,
   Subject,
+  Topic,
 } from '../models/index.js';
 import { escapeRegex } from '../utils/slug.js';
 import { getTerms, term } from './terms.js';
@@ -17,10 +20,11 @@ import { urls } from './urls.js';
 const STOP_WORDS = new Set([
   'maths', 'math', 'mathematics', 'ncert', 'solution', 'solutions', 'class', 'chapter', 'exercise', 'ex',
   'question', 'q', 'the', 'of', 'for', 'and', 'in', 'to', 'गणित', 'हल', 'कक्षा', 'अध्याय', 'प्रश्नावली',
-  'प्रश्न', 'का', 'की', 'के', 'में',
+  'प्रश्न', 'का', 'की', 'के', 'में', 'topic', 'टॉपिक', 'किताब', 'बुक', 'book', 'pdf', 'पीडीएफ',
 ]);
 
-const TYPE_WEIGHT = { class: 60, chapter: 50, exercise: 45, formula: 35, note: 30, importantQuestion: 25, question: 22, solution: 15, page: 10 };
+const TYPE_WEIGHT = { class: 60, chapter: 50, topic: 48, exercise: 45, formula: 35, resource: 32, note: 30, book: 28, importantQuestion: 25, question: 22, solution: 15, page: 10 };
+
 
 export function parseQuery(raw) {
   let text = ` ${String(raw || '').slice(0, 200)} `;
@@ -151,7 +155,30 @@ export async function search({ q, type, classNumber: classFilter, page = 1, limi
     }
   }
 
+  if (want('topic') && !parsed.exerciseNumber && !parsed.questionNumber && (!onlyStructured || parsed.chapterNumber || classIds)) {
+    const filter = { ...classScope, ...chapterScope, ...tf };
+    const items = await Topic.find(Topic.publicFilter(filter)).select('+searchText number title slug shortDescription difficulty estimatedTime chapter class subject').sort({ number: 1 }).limit(PER_TYPE).lean();
+    for (const tp of items) {
+      const cls = classById.get(String(tp.class));
+      const subject = subjectById.get(String(tp.subject));
+      const chapter = await getChapter(tp.chapter);
+      if (!cls || !subject || !chapter) continue;
+      results.push({
+        type: 'topic',
+        id: tp._id,
+        title: tp.title,
+        difficulty: tp.difficulty,
+        estimatedTime: tp.estimatedTime,
+        snippet: snippetOf(tp.shortDescription?.hi || tp.shortDescription?.en || tp.searchText, parsed.terms),
+        ...ctxLabels(cls, chapter),
+        url: urls.topic(cls, subject, chapter, tp),
+        score: TYPE_WEIGHT.topic,
+      });
+    }
+  }
+
   if (want('exercise') && !parsed.questionNumber && (!onlyStructured || parsed.exerciseNumber || parsed.chapterNumber)) {
+
     const filter = { ...classScope, ...chapterScope, ...tf, ...(parsed.exerciseNumber ? { number: parsed.exerciseNumber } : {}) };
     const items = await Exercise.find(Exercise.publicFilter(filter)).select('+searchText number title slug description chapter class subject').limit(PER_TYPE).lean();
     for (const ex of items) {
@@ -266,6 +293,68 @@ export async function search({ q, type, classNumber: classFilter, page = 1, limi
       }
     }
 
+    if (want('resource')) {
+      const items = await Resource.find(Resource.publicFilter({ ...classScope, ...chapterScope, ...tf }))
+        .select('+searchText title description class subject chapter topic resourceType fileUrl fileSize downloadAllowed')
+        .populate('file', 'url bytes')
+        .limit(PER_TYPE)
+        .lean();
+      for (const r of items) {
+        const cls = classById.get(String(r.class));
+        const subject = classById.get(String(r.class))?.subjects?.map((id) => subjectById.get(String(id))).find(Boolean) || subjectById.get(String(r.subject));
+        const chapter = r.chapter ? await getChapter(r.chapter) : null;
+        if (!cls) continue;
+        const fileUrl = r.file?.url || r.fileUrl || '';
+        results.push({
+          type: 'resource',
+          id: r._id,
+          title: r.title,
+          resourceType: r.resourceType,
+          fileUrl,
+          fileSize: r.fileSize || (r.file?.bytes ? `${(r.file.bytes / (1024 * 1024)).toFixed(1)} MB` : ''),
+          downloadAllowed: r.downloadAllowed !== false,
+          snippet: snippetOf(r.description?.hi || r.description?.en || r.searchText, parsed.terms),
+          ...ctxLabels(cls, chapter),
+          url: chapter
+            ? urls.chapter(cls, subject || { slug: 'maths' }, chapter)
+            : (subject
+                ? urls.resources(cls, subject)
+                : urls.class(cls)),
+          score: TYPE_WEIGHT.resource,
+        });
+      }
+    }
+
+    if (want('book')) {
+      const items = await Book.find(Book.publicFilter({ ...classScope, ...chapterScope, ...tf }))
+        .select('+searchText title author publisher edition category description recommendedFor purchaseUrl price coverUrl class subject chapter topic')
+        .populate('coverImage', 'url')
+        .limit(PER_TYPE)
+        .lean();
+      for (const b of items) {
+        const cls = classById.get(String(b.class));
+        const subject = classById.get(String(b.class))?.subjects?.map((id) => subjectById.get(String(id))).find(Boolean) || subjectById.get(String(b.subject));
+        const chapter = b.chapter ? await getChapter(b.chapter) : null;
+        if (!cls) continue;
+        results.push({
+          type: 'book',
+          id: b._id,
+          title: b.title,
+          author: b.author,
+          publisher: b.publisher,
+          edition: b.edition,
+          category: b.category,
+          price: b.price,
+          purchaseUrl: b.purchaseUrl,
+          coverUrl: b.coverImage?.url || b.coverUrl || '',
+          snippet: snippetOf(b.description?.hi || b.description?.en || b.author || b.searchText, parsed.terms),
+          ...ctxLabels(cls, chapter),
+          url: urls.books(cls, subject || { slug: 'maths' }),
+          score: TYPE_WEIGHT.book,
+        });
+      }
+    }
+
     if (want('importantQuestion')) {
       const items = await ImportantQuestion.find(ImportantQuestion.publicFilter({ ...classScope, ...chapterScope, ...tf })).select('+searchText text slug class subject chapter marks').limit(PER_TYPE).lean();
       for (const iq of items) {
@@ -284,6 +373,7 @@ export async function search({ q, type, classNumber: classFilter, page = 1, limi
         });
       }
     }
+
 
     if (want('page') && !classIds) {
       const items = await Page.find(Page.publicFilter(tf)).select('+searchText title slug excerpt').limit(10).lean();

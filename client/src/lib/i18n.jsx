@@ -6,7 +6,7 @@ const LanguageContext = createContext({ lang: 'hi', setLang: () => { } });
 function readStoredLang() {
   try {
     const value = localStorage.getItem(STORAGE_KEY);
-    return value === 'hi' || value === 'en' ? value : null;
+    return value === 'hi' || value === 'en' || value === 'mixed' ? value : null;
   } catch {
     return null;
   }
@@ -47,7 +47,7 @@ export function hasContent(value) {
  * Picks the right text for the student's language without destroying mixed Hindi-English content.
  *  - mode "mixed": always show the mixed version (falls back to whatever exists)
  *  - mode "hi"/"en": content exists only in that language
- *  - mode "auto": follow the हिंदी / ENG switch, fall back to the other language when missing
+ *  - mode "auto": follow the हिंदी / ENG / Hinglish switch, fall back gracefully
  */
 export function pickL10n(value, lang, mode = 'auto') {
   if (!value) return '';
@@ -56,16 +56,17 @@ export function pickL10n(value, lang, mode = 'auto') {
   const hi = ok(value.hi);
   const en = ok(value.en);
   const mixed = ok(value.mixed);
-  if (mode === 'mixed') return mixed || (lang === 'hi' ? hi || en : en || hi);
+  if (mode === 'mixed') return mixed || en || hi;
   if (mode === 'hi') return hi || mixed || en;
   if (mode === 'en') return en || mixed || hi;
+  if (lang === 'mixed') return mixed || en || hi;
   return lang === 'hi' ? hi || mixed || en : en || mixed || hi;
 }
 
-/** Which languages a localized value is available in (for "हिंदी में देखें / View in English"). */
+/** Which languages a localized value is available in. */
 export function availableLanguages(value) {
   if (!value || typeof value === 'string') return [];
-  return ['hi', 'en'].filter((k) => hasContent(value[k]));
+  return ['hi', 'en', 'mixed'].filter((k) => hasContent(value[k]));
 }
 
 export function useL10n() {

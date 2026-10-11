@@ -17,7 +17,7 @@ export function Breadcrumbs({ items, className }) {
   const t = useL10n();
   if (!items?.length) return null;
   return (
-    <Breadcrumb className={cn('-mx-1 overflow-x-auto px-1 pb-1', className)}>
+    <Breadcrumb className={cn('w-full max-w-full overflow-x-auto pb-1', className)}>
       <BreadcrumbList className="flex-nowrap text-[13px] whitespace-nowrap">
         {items.map((item, index) => {
           const last = index === items.length - 1;

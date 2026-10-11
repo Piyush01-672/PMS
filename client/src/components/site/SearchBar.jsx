@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, BookOpen, CircleHelp, FileText, GraduationCap, ListOrdered, Loader2, Search, Sigma, Star, X } from 'lucide-react';
+import { ArrowRight, BookOpen, CircleHelp, FileText, GraduationCap, ListOrdered, Loader2, Search, Sigma, Sparkles, Star, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { get } from '@/lib/api';
@@ -11,14 +11,18 @@ import { cn } from '@/lib/utils';
 export const RESULT_META = {
   class: { icon: GraduationCap, term: 'class' },
   chapter: { icon: BookOpen, term: 'chapter' },
+  topic: { icon: Sparkles, term: 'topic', label: 'Topic' },
   exercise: { icon: ListOrdered, term: 'exercise' },
   question: { icon: CircleHelp, term: 'question' },
   solution: { icon: CircleHelp, term: 'solution' },
   formula: { icon: Sigma, term: 'formula' },
   note: { icon: FileText, term: 'notes' },
+  resource: { icon: FileText, term: 'resource', label: 'PDF / Resource' },
+  book: { icon: BookOpen, term: 'book', label: 'Reference Book' },
   importantQuestion: { icon: Star, term: 'importantQuestions' },
   page: { icon: FileText, term: 'page' },
 };
+
 
 function useDebounced(value, delay = 220) {
   const [debounced, setDebounced] = useState(value);

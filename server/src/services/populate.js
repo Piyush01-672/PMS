@@ -1,5 +1,7 @@
-export const MEDIA_SELECT = 'url width height alt title caption format provider publicId kind';
-export const VIDEO_SELECT = 'youtubeId url title description thumbnailUrl isVisible';
+export const MEDIA_SELECT = 'url width height alt title caption format provider publicId kind bytes originalName filename';
+export const VIDEO_SELECT = 'youtubeId url title description thumbnailUrl isVisible durationSecs mimeType provider bytes';
+export const RESOURCE_SELECT = 'title description class subject chapter topic resourceType file fileUrl fileSize fileType thumbnail downloadAllowed featured tags status isVisible sortOrder';
+export const BOOK_SELECT = 'title author publisher edition class subject chapter topic category description coverImage coverUrl recommendedFor purchaseUrl price availability featured rating tags status isVisible sortOrder';
 
 export const blockPopulate = (prefix = 'blocks') => [
   { path: `${prefix}.media.media`, select: MEDIA_SELECT },
@@ -36,3 +38,4 @@ export function cleanAttachments(attachments = []) {
 export function cleanVideoRef(value) {
   return isVisibleVideo(value) ? value : null;
 }
+

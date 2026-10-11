@@ -15,6 +15,11 @@ import QuestionPage from './content/QuestionPage.jsx';
 import StaticPage from './content/StaticPage.jsx';
 import SubjectExercisesPage from './content/SubjectExercisesPage.jsx';
 import SubjectPage from './content/SubjectPage.jsx';
+import TopicPage from './content/TopicPage.jsx';
+import BooksListPage from './content/BooksListPage.jsx';
+import ResourcesListPage from './content/ResourcesListPage.jsx';
+import StudyMaterialsPage from './content/StudyMaterialsPage.jsx';
+import ReferenceSolutionsPage from './content/ReferenceSolutionsPage.jsx';
 
 // API page type → template. Every URL below "/" is resolved from the database; no routes are hardcoded.
 const TEMPLATES = {
@@ -23,13 +28,19 @@ const TEMPLATES = {
   subjectExercises: SubjectExercisesPage,
   notesList: NotesListPage,
   note: NotePage,
+  resourcesList: ResourcesListPage,
+  booksList: BooksListPage,
+  studyMaterials: StudyMaterialsPage,
+  referenceSolutions: ReferenceSolutionsPage,
+  topic: TopicPage,
   importantQuestions: ImportantQuestionsPage,
   chapter: ChapterPage,
   exercise: ExercisePage,
   question: QuestionPage,
   page: StaticPage,
 };
-const ARTICLE_TYPES = new Set(['chapter', 'exercise', 'question', 'note']);
+const ARTICLE_TYPES = new Set(['chapter', 'exercise', 'question', 'note', 'topic']);
+
 
 export default function ContentPage() {
   const location = useLocation();

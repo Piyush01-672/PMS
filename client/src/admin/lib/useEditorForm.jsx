@@ -97,10 +97,12 @@ export function useEditorForm({ resource, id, defaults, basePath, toForm = ident
   return {
     isNew,
     item,
-    doc: item.data,
+    doc: form || item.data,
+    originalDoc: item.data,
     form,
     setForm,
     setField,
+    set: setField,
     initialize,
     dirty,
     saving: mutations.save.isPending,
@@ -110,10 +112,12 @@ export function useEditorForm({ resource, id, defaults, basePath, toForm = ident
   };
 }
 
-export function EditorGate({ editor, children }) {
-  if (!editor.isNew && editor.item.isError) {
-    return <ErrorState error={editor.item.error} onRetry={editor.item.refetch} title="Could not load this item" />;
+export function EditorGate({ editor, form, children }) {
+  const ed = editor || form;
+  if (!ed) return <PageSkeleton />;
+  if (!ed.isNew && ed.item?.isError) {
+    return <ErrorState error={ed.item.error} onRetry={ed.item.refetch} title="Could not load this item" />;
   }
-  if (!editor.form) return <PageSkeleton />;
-  return children();
+  if (!ed.form) return <PageSkeleton />;
+  return typeof children === 'function' ? children() : children;
 }

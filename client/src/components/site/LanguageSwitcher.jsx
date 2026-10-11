@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 const OPTIONS = [
   { value: 'hi', label: 'हिंदी', aria: 'हिंदी में देखें' },
   { value: 'en', label: 'ENG', aria: 'View in English' },
+  { value: 'mixed', label: 'Hinglish', aria: 'हिंग्लिश / Mixed' },
 ];
 
 export function LanguageSwitcher({ className }) {

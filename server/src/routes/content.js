@@ -4,6 +4,8 @@ import { hasPermission } from '../lib/permissions.js';
 import { isObjectId } from '../lib/request.js';
 import {
   AdSlot,
+  Announcement,
+  Book,
   Chapter,
   ClassLevel,
   Exercise,
@@ -12,15 +14,18 @@ import {
   Page,
   Question,
   RelatedContent,
+  Resource,
   Section,
   Solution,
   Subject,
   Template,
+  Topic,
 } from '../models/index.js';
 import { optionalAuth } from '../middleware/auth.js';
 import { ApiError } from '../middleware/error.js';
 import { assertNoChildren, crudRouter } from '../services/crud.js';
-import { MEDIA_SELECT, VIDEO_SELECT, blockPopulate, questionPopulate } from '../services/populate.js';
+import { BOOK_SELECT, MEDIA_SELECT, RESOURCE_SELECT, VIDEO_SELECT, blockPopulate, questionPopulate } from '../services/populate.js';
+
 
 const router = express.Router();
 const idFilter = (query, keys) =>
@@ -88,16 +93,18 @@ router.use(
   crudRouter(Chapter, {
     entityType: 'Chapter',
     defaultSort: { sortOrder: 1, number: 1 },
-    adminFilters: (q) => idFilter(q, ['class', 'subject']),
-    publicFilters: (q) => idFilter(q, ['class', 'subject']),
+    adminFilters: (q) => idFilter(q, ['class', 'subject', 'book']),
+    publicFilters: (q) => idFilter(q, ['class', 'subject', 'book']),
     populate: {
-      list: [classPopulate, subjectPopulate],
+      list: [classPopulate, subjectPopulate, { path: 'book', select: 'title author slug' }],
       detail: [
         classPopulate,
         subjectPopulate,
+        { path: 'book', select: 'title author slug' },
         { path: 'image', select: MEDIA_SELECT },
         { path: 'featuredImage', select: MEDIA_SELECT },
         { path: 'introVideo', select: VIDEO_SELECT },
+        { path: 'pdfFile', select: MEDIA_SELECT },
         { path: 'relatedChapters', select: 'number title slug class' },
         seoImage,
       ],
@@ -107,6 +114,9 @@ router.use(
     },
     afterDelete: async (doc) => {
       await Promise.all([
+        Topic.deleteMany({ chapter: doc._id }),
+        Resource.deleteMany({ chapter: doc._id }),
+        Book.updateMany({ chapter: doc._id }, { $unset: { chapter: 1 } }),
         Note.updateMany({ chapter: doc._id }, { $unset: { chapter: 1 } }),
         ImportantQuestion.updateMany({ chapter: doc._id }, { $unset: { chapter: 1 } }),
         Chapter.updateMany({ relatedChapters: doc._id }, { $pull: { relatedChapters: doc._id } }),
@@ -114,6 +124,127 @@ router.use(
       ]);
     },
     prepareDuplicate: (plain) => ({ ...plain, slug: `${plain.slug}-${copySuffix()}`, title: copyTitle(plain.title) }),
+  }),
+);
+
+router.use(
+  '/topics',
+  crudRouter(Topic, {
+    entityType: 'Topic',
+    defaultSort: { sortOrder: 1, number: 1 },
+    adminFilters: (q) => ({
+      ...idFilter(q, ['chapter', 'class', 'subject']),
+      ...(q.difficulty ? { difficulty: String(q.difficulty) } : {}),
+      ...(q.featured === 'true' ? { featured: true } : {}),
+    }),
+    publicFilters: (q) => idFilter(q, ['chapter', 'class', 'subject']),
+    populate: {
+      list: [{ path: 'chapter', select: 'number title slug' }, classPopulate, subjectPopulate],
+      detail: [
+        { path: 'chapter', select: 'number title slug class subject', populate: [classPopulate, subjectPopulate] },
+        classPopulate,
+        subjectPopulate,
+        { path: 'image', select: MEDIA_SELECT },
+        { path: 'featuredImage', select: MEDIA_SELECT },
+        { path: 'video', select: VIDEO_SELECT },
+        { path: 'videos', select: VIDEO_SELECT },
+        { path: 'attachments.media', select: MEDIA_SELECT },
+        { path: 'resources', select: RESOURCE_SELECT, populate: [{ path: 'file', select: MEDIA_SELECT }, { path: 'thumbnail', select: MEDIA_SELECT }] },
+        { path: 'books', select: BOOK_SELECT, populate: { path: 'coverImage', select: MEDIA_SELECT } },
+        seoImage,
+      ],
+    },
+    afterDelete: async (doc) => {
+      await Promise.all([
+        Resource.updateMany({ topic: doc._id }, { $unset: { topic: 1 } }),
+        Book.updateMany({ topic: doc._id }, { $unset: { topic: 1 } }),
+        RelatedContent.deleteMany({ source: doc._id }),
+      ]);
+    },
+    prepareDuplicate: (plain) => ({ ...plain, slug: `${plain.slug}-${copySuffix()}`, title: copyTitle(plain.title) }),
+  }),
+);
+
+router.use(
+  '/resources',
+  crudRouter(Resource, {
+    entityType: 'Resource',
+    defaultSort: { sortOrder: 1, createdAt: -1 },
+    adminFilters: (q) => ({
+      ...idFilter(q, ['class', 'subject', 'chapter', 'topic', 'exercise', 'book']),
+      ...(q.resourceType ? { resourceType: String(q.resourceType) } : {}),
+      ...(q.featured === 'true' ? { featured: true } : {}),
+    }),
+    publicFilters: (q) => ({
+      ...idFilter(q, ['class', 'subject', 'chapter', 'topic', 'exercise', 'book']),
+      ...(q.resourceType ? { resourceType: String(q.resourceType) } : {}),
+      ...(q.featured === 'true' ? { featured: true } : {}),
+    }),
+    populate: {
+      list: [
+        classPopulate,
+        { path: 'chapter', select: 'number title' },
+        { path: 'exercise', select: 'number title slug' },
+        { path: 'book', select: 'title author slug' },
+        { path: 'topic', select: 'number title' },
+        { path: 'file', select: MEDIA_SELECT },
+        { path: 'thumbnail', select: MEDIA_SELECT },
+      ],
+      detail: [
+        classPopulate,
+        subjectPopulate,
+        { path: 'chapter', select: 'number title slug' },
+        { path: 'exercise', select: 'number title slug' },
+        { path: 'book', select: 'title author slug' },
+        { path: 'topic', select: 'number title slug' },
+        { path: 'file', select: MEDIA_SELECT },
+        { path: 'thumbnail', select: MEDIA_SELECT },
+      ],
+    },
+    prepareDuplicate: (plain) => ({ ...plain, title: copyTitle(plain.title) }),
+  }),
+);
+
+router.use(
+  '/books',
+  crudRouter(Book, {
+    entityType: 'Book',
+    defaultSort: { sortOrder: 1, createdAt: -1 },
+    adminFilters: (q) => ({
+      ...idFilter(q, ['class', 'subject', 'chapter', 'topic']),
+      ...(q.slug ? { slug: String(q.slug) } : {}),
+      ...(q.category ? { category: String(q.category) } : {}),
+      ...(q.featured === 'true' ? { featured: true } : {}),
+    }),
+    publicFilters: (q) => ({
+      ...idFilter(q, ['class', 'subject', 'chapter', 'topic']),
+      ...(q.slug ? { slug: String(q.slug) } : {}),
+      ...(q.category ? { category: String(q.category) } : {}),
+      ...(q.featured === 'true' ? { featured: true } : {}),
+    }),
+    populate: {
+      list: [classPopulate, { path: 'chapter', select: 'number title' }, { path: 'coverImage', select: MEDIA_SELECT }, { path: 'pdfFile', select: MEDIA_SELECT }],
+      detail: [
+        classPopulate,
+        subjectPopulate,
+        { path: 'chapter', select: 'number title slug' },
+        { path: 'topic', select: 'number title slug' },
+        { path: 'coverImage', select: MEDIA_SELECT },
+        { path: 'pdfFile', select: MEDIA_SELECT },
+      ],
+    },
+    prepareDuplicate: (plain) => ({ ...plain, title: copyTitle(plain.title) }),
+  }),
+);
+
+router.use(
+  '/announcements',
+  crudRouter(Announcement, {
+    entityType: 'Announcement',
+    hasStatus: false,
+    defaultSort: { sortOrder: 1, createdAt: -1 },
+    adminFilters: (q) => (q.isVisible !== undefined ? { isVisible: q.isVisible === 'true' } : {}),
+    prepareDuplicate: (plain) => ({ ...plain, text: copyTitle(plain.text) }),
   }),
 );
 
@@ -129,6 +260,7 @@ router.use(
       detail: [
         { path: 'chapter', select: 'number title slug class subject', populate: [classPopulate, subjectPopulate] },
         { path: 'introVideo', select: VIDEO_SELECT },
+        { path: 'pdfFile', select: MEDIA_SELECT },
         seoImage,
       ],
     },
@@ -138,6 +270,7 @@ router.use(
     afterDelete: async (doc) => RelatedContent.deleteMany({ source: doc._id }),
     prepareDuplicate: (plain) => ({ ...plain, slug: `${plain.slug}-${copySuffix()}` }),
   }),
+
 );
 
 async function saveSolution(question, req) {

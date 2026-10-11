@@ -29,7 +29,7 @@ export default function PublicLayout() {
 
   return (
     <ImageViewerProvider>
-      <div className="flex min-h-dvh flex-col">
+      <div className="flex min-h-dvh flex-col overflow-x-clip">
         <a href="#main" className="sr-only z-[60] rounded-md bg-brand px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
           Skip to content
         </a>

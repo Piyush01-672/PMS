@@ -15,6 +15,8 @@ const exerciseSchema = new mongoose.Schema(
     description: richL10n(),
     instructions: richL10n(),
     introVideo: { type: ObjectId, ref: 'Video' },
+    pdfFile: { type: ObjectId, ref: 'Media' },
+    pdfUrl: { type: String, default: '', trim: true, maxlength: 2000 },
     notes: richL10n(),
     languageMode,
     seo: seo(),

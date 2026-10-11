@@ -4,7 +4,12 @@ import { ApiError } from './error.js';
 import { readSessionToken } from './auth.js';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
-const EXEMPT_PATHS = new Set(['/api/auth/login', '/api/auth/2fa/verify']);
+const EXEMPT_PATHS = new Set([
+  '/auth/login',
+  '/auth/2fa/verify',
+  '/api/auth/login',
+  '/api/auth/2fa/verify',
+]);
 
 export const csrfTokenFor = (sid) => hmac(`csrf:${sid}`);
 
@@ -19,7 +24,8 @@ export function csrfProtection(req, res, next) {
   if (SAFE_METHODS.has(req.method)) return next();
 
   if (!allowedOrigin(req.get('origin'))) return next(new ApiError(403, 'Cross-origin request blocked'));
-  if (EXEMPT_PATHS.has(req.path)) return next();
+  const normalizedPath = req.originalUrl?.split('?')[0] || req.path;
+  if (EXEMPT_PATHS.has(req.path) || EXEMPT_PATHS.has(normalizedPath)) return next();
 
   const payload = readSessionToken(req);
   if (!payload?.sid) return next();

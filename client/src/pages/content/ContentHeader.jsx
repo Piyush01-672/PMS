@@ -2,12 +2,18 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 import { Link } from 'react-router';
 import { Breadcrumbs } from '@/components/site/Breadcrumbs.jsx';
+import { useL10n } from '@/lib/i18n';
 import { useEntrance } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
 export function ContentHeader({ breadcrumbs, eyebrow, title, subtitle, watermark, children, aside, className }) {
+  const t = useL10n();
   const ref = useRef(null);
   useEntrance(ref, [String(watermark), breadcrumbs?.at(-1)?.url]);
+
+  const resolvedTitle = typeof title === 'object' && title !== null ? t(title) : title;
+  const resolvedSubtitle = typeof subtitle === 'object' && subtitle !== null ? t(subtitle) : subtitle;
+
   return (
     <section ref={ref} className={cn('relative overflow-hidden border-b bg-gradient-to-b from-brand-soft/40 to-background', className)}>
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true" />
@@ -29,11 +35,11 @@ export function ContentHeader({ breadcrumbs, eyebrow, title, subtitle, watermark
               </div>
             )}
             <h1 data-enter className="font-heading text-[1.7rem] leading-tight font-extrabold tracking-tight text-balance text-ink sm:text-4xl dark:text-foreground">
-              {title}
+              {resolvedTitle}
             </h1>
-            {subtitle && (
+            {resolvedSubtitle && (
               <p data-enter className="mt-2 text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-                {subtitle}
+                {resolvedSubtitle}
               </p>
             )}
             {children && <div data-enter>{children}</div>}

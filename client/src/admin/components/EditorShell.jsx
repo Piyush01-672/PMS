@@ -47,6 +47,7 @@ export function EditorShell({
   saving,
   onSave,
   onPreview,
+  previewUrl,
   onDuplicate,
   onDelete,
   hasStatus = true,
@@ -54,23 +55,32 @@ export function EditorShell({
   children,
 }) {
   const { can } = useAdminAuth();
-  const isNew = !doc?._id;
-  const status = form?.status || 'draft';
+  const isEditor = form && typeof form.save === 'function';
+  const f = isEditor ? form.form : form;
+  const d = doc || (isEditor ? (form.form || form.doc) : doc);
+  const sf = setField || (isEditor ? form.setField : () => {});
+  const isUnsaved = dirty !== undefined ? dirty : (isEditor ? form.dirty : false);
+  const isSaving = saving !== undefined ? saving : (isEditor ? form.saving : false);
+  const doSave = onSave || (isEditor ? form.save : () => {});
+  const doDuplicate = onDuplicate || (isEditor ? form.duplicate : undefined);
+  const doDelete = onDelete || (isEditor && form.remove ? () => form.remove() : undefined);
+  const isNew = isEditor ? form.isNew : !d?._id;
+  const status = f?.status || 'draft';
   const canPublish = can('content:publish');
-  useUnsavedGuard(dirty && !saving);
+  useUnsavedGuard(isUnsaved && !isSaving);
 
   useEffect(() => {
     const onKey = (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
         event.preventDefault();
-        onSave({});
+        doSave({});
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onSave]);
+  }, [doSave]);
 
-  const scheduled = form?.publishedAt && new Date(form.publishedAt) > new Date();
+  const scheduled = f?.publishedAt && new Date(f.publishedAt) > new Date();
 
   return (
     <div>
@@ -81,15 +91,15 @@ export function EditorShell({
         backLabel={backLabel}
         actions={
           <>
-            {hasStatus && <StatusBadge doc={{ ...doc, ...form }} />}
-            {dirty && <span className="text-xs font-semibold text-warning">Unsaved changes</span>}
+            {hasStatus && <StatusBadge doc={{ ...(d || {}), ...(f || {}) }} />}
+            {isUnsaved && <span className="text-xs font-semibold text-warning">Unsaved changes</span>}
             {onPreview && (
               <Button type="button" variant="outline" size="lg" onClick={onPreview}>
                 <Eye /> Preview
               </Button>
             )}
-            <Button type="button" size="lg" onClick={() => onSave({})} disabled={saving}>
-              {saving ? <Loader2 className="animate-spin" /> : <Save />} {isNew ? 'Save' : 'Save changes'}
+            <Button type="button" size="lg" onClick={() => doSave({})} disabled={isSaving}>
+              {isSaving ? <Loader2 className="animate-spin" /> : <Save />} {isNew ? 'Save' : 'Save changes'}
             </Button>
           </>
         }
@@ -102,59 +112,59 @@ export function EditorShell({
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Status</span>
-                  <StatusBadge doc={{ ...doc, ...form }} />
+                  <StatusBadge doc={{ ...(d || {}), ...(f || {}) }} />
                 </div>
                 <div className="grid gap-2">
                   {status !== 'published' && (
-                    <Button type="button" variant="outline" onClick={() => onSave({ status: 'draft' })} disabled={saving}>
+                    <Button type="button" variant="outline" onClick={() => doSave({ status: 'draft' })} disabled={isSaving}>
                       <Save /> Save draft
                     </Button>
                   )}
                   {status !== 'published' && canPublish && (
-                    <Button type="button" onClick={() => onSave({ status: 'published' })} disabled={saving}>
+                    <Button type="button" onClick={() => doSave({ status: 'published' })} disabled={isSaving}>
                       {scheduled ? <CalendarClock /> : <Send />} {scheduled ? 'Schedule' : 'Publish'}
                     </Button>
                   )}
                   {status === 'published' && (
-                    <Button type="button" onClick={() => onSave({})} disabled={saving}>
+                    <Button type="button" onClick={() => doSave({})} disabled={isSaving}>
                       <Save /> Update
                     </Button>
                   )}
                   {status === 'published' && canPublish && (
-                    <Button type="button" variant="outline" onClick={() => onSave({ status: 'draft' })} disabled={saving}>
+                    <Button type="button" variant="outline" onClick={() => doSave({ status: 'draft' })} disabled={isSaving}>
                       <Undo2 /> Unpublish
                     </Button>
                   )}
                   {status === 'archived' && (
-                    <Button type="button" variant="ghost" onClick={() => onSave({ status: 'draft' })} disabled={saving}>
+                    <Button type="button" variant="ghost" onClick={() => doSave({ status: 'draft' })} disabled={isSaving}>
                       <RotateCcw /> Restore as draft
                     </Button>
                   )}
                   {!canPublish && <p className="text-xs text-muted-foreground">An admin needs to publish your draft.</p>}
                 </div>
-                <SwitchField label="Visible on website" hint="Hide without unpublishing." checked={form?.isVisible !== false} onChange={(v) => setField('isVisible', v)} />
-                <DateTimeField label="Publish date" hint="Pick a future date to schedule publishing." value={form?.publishedAt} onChange={(v) => setField('publishedAt', v)} />
+                <SwitchField label="Visible on website" hint="Hide without unpublishing." checked={f?.isVisible !== false} onChange={(v) => sf('isVisible', v)} />
+                <DateTimeField label="Publish date" hint="Pick a future date to schedule publishing." value={f?.publishedAt} onChange={(v) => sf('publishedAt', v)} />
               </div>
             </Panel>
           )}
 
           {sidebar}
 
-          {!isNew && (
+          {!isNew && d && (
             <Panel title="More actions">
               <div className="grid gap-2">
-                {onDuplicate && (
-                  <Button type="button" variant="outline" onClick={onDuplicate}>
+                {doDuplicate && (
+                  <Button type="button" variant="outline" onClick={doDuplicate}>
                     <Copy /> Duplicate
                   </Button>
                 )}
                 {hasStatus && status !== 'archived' && canPublish && (
-                  <Button type="button" variant="ghost" onClick={() => onSave({ status: 'archived' })}>
+                  <Button type="button" variant="ghost" onClick={() => doSave({ status: 'archived' })}>
                     <Archive /> Archive
                   </Button>
                 )}
-                {onDelete && can('content:delete') && (
-                  <Button type="button" variant="destructive" onClick={onDelete}>
+                {doDelete && can('content:delete') && (
+                  <Button type="button" variant="destructive" onClick={doDelete}>
                     <Trash2 /> Delete
                   </Button>
                 )}
@@ -162,16 +172,16 @@ export function EditorShell({
               <dl className="mt-4 space-y-1 text-xs text-muted-foreground">
                 <div className="flex justify-between gap-2">
                   <dt>Created</dt>
-                  <dd>{formatDate(doc.createdAt)}</dd>
+                  <dd>{formatDate(d.createdAt)}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
                   <dt>Last updated</dt>
-                  <dd>{formatDate(doc.updatedAt)}</dd>
+                  <dd>{formatDate(d.updatedAt)}</dd>
                 </div>
-                {doc.publishedAt && (
+                {d.publishedAt && (
                   <div className="flex justify-between gap-2">
                     <dt>Published</dt>
-                    <dd>{formatDate(doc.publishedAt)}</dd>
+                    <dd>{formatDate(d.publishedAt)}</dd>
                   </div>
                 )}
               </dl>

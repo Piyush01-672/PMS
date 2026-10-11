@@ -246,3 +246,91 @@ test('activity log, dashboard stats and sitemap reflect admin work', async () =>
   assert.match(robots.text, /Sitemap: .*\/sitemap.xml/);
   assert.ok(!robots.text.includes('pms-control'), 'robots.txt must not reveal the admin path');
 });
+
+test('Topic preview works and preserves chapter relationship data', async () => {
+  const topic1 = await owner.post('/api/topics').send({
+    class: ids.class,
+    subject: ids.subject,
+    chapter: ids.chapter,
+    number: 1,
+    title: { hi: 'समांतर श्रेढ़ी का परिचय', en: 'Introduction to AP' },
+    shortDescription: { en: 'Basics of AP' },
+    status: 'published',
+  });
+  assert.equal(topic1.status, 201);
+  const topicId = topic1.body._id;
+
+  const topic2 = await owner.post('/api/topics').send({
+    class: ids.class,
+    subject: ids.subject,
+    chapter: ids.chapter,
+    number: 2,
+    title: { en: 'nth Term of an AP' },
+    status: 'published',
+  });
+  assert.equal(topic2.status, 201);
+
+  const previewRes = await owner.post('/api/public/preview').send({
+    entityType: 'Topic',
+    id: topicId,
+    data: {
+      chapter: ids.chapter,
+      title: { en: 'Unsaved AP Topic Title' },
+      notes: { en: '<p>Draft preview notes</p>' },
+    },
+  });
+  assert.equal(previewRes.status, 200);
+  assert.ok(previewRes.body.token);
+
+  const topicPath = `/class-10/maths/adhyay-5/topic/${topic1.body.slug}`;
+  const res = await resolve(owner, topicPath, `&preview=1&previewToken=${previewRes.body.token}`);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.type, 'topic');
+  assert.equal(res.body.data.topic.title.en, 'Unsaved AP Topic Title');
+  assert.equal(String(res.body.data.chapter._id), ids.chapter);
+  assert.ok(res.body.data.siblings.length >= 2, 'retains sibling topics for navigation');
+  assert.ok(res.body.data.next, 'has next topic navigation');
+  assert.equal(res.body.data.next.slug, topic2.body.slug);
+});
+
+test('resource search URLs reflect chapter, subject, and class scoping correctly', async () => {
+  const r1 = await owner.post('/api/resources').send({
+    class: ids.class,
+    subject: ids.subject,
+    chapter: ids.chapter,
+    title: { en: 'Chapter Resource PDF' },
+    resourceType: 'notes',
+    status: 'published',
+  });
+  assert.equal(r1.status, 201);
+
+  const r2 = await owner.post('/api/resources').send({
+    class: ids.class,
+    subject: ids.subject,
+    title: { en: 'Subject Resource PDF' },
+    resourceType: 'formula_sheet',
+    status: 'published',
+  });
+  assert.equal(r2.status, 201);
+
+  const search1 = await request(app).get(`/api/search?q=${encodeURIComponent('Chapter Resource PDF')}`);
+  assert.equal(search1.status, 200);
+  const found1 = search1.body.results.find((r) => r.title?.en === 'Chapter Resource PDF');
+  assert.ok(found1);
+  assert.equal(found1.url, '/class-10/maths/adhyay-5');
+
+  const search2 = await request(app).get(`/api/search?q=${encodeURIComponent('Subject Resource PDF')}`);
+  assert.equal(search2.status, 200);
+  const found2 = search2.body.results.find((r) => r.title?.en === 'Subject Resource PDF');
+  assert.ok(found2);
+  assert.equal(found2.url, '/class-10/maths/resources');
+});
+
+test('resource rejects invalid activity_sheet resourceType', async () => {
+  const bad = await owner.post('/api/resources').send({
+    class: ids.class,
+    title: { en: 'Bad Resource' },
+    resourceType: 'activity_sheet',
+  });
+  assert.equal(bad.status, 400);
+});

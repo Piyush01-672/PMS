@@ -152,7 +152,55 @@ export function MobileMenu() {
                     </nav>
                   )}
 
-                  <p className="mt-6 mb-1 text-xs font-extrabold tracking-[0.14em] text-brand uppercase">{term('mathematics')}</p>
+                  {/* Study Materials Mobile Links */}
+                  <div className="mt-6">
+                    <p className="mb-2 text-xs font-extrabold tracking-[0.14em] text-brand uppercase">Study Materials</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { title: 'NCERT Solutions', url: '/study-materials/ncert-solutions' },
+                        { title: 'NCERT Books', url: '/study-materials/ncert-books' },
+                        { title: 'NCERT Notes', url: '/study-materials/ncert-notes' },
+                        { title: 'CBSE Sample Papers', url: '/study-materials/cbse-sample-papers' },
+                        { title: 'Extra Questions', url: '/study-materials/extra-questions' },
+                        { title: 'Important Questions', url: '/study-materials/important-questions' },
+                        { title: 'English Summaries', url: '/study-materials/english-summaries' },
+                        { title: 'Syllabus', url: '/study-materials/syllabus' },
+                      ].map((item) => (
+                        <Link
+                          key={item.url}
+                          to={item.url}
+                          onClick={() => setOpen(false)}
+                          className="rounded-lg border bg-card p-2 text-xs font-semibold text-foreground/90 hover:border-brand hover:text-brand"
+                        >
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Reference Solutions Mobile Links */}
+                  <div className="mt-6">
+                    <p className="mb-2 text-xs font-extrabold tracking-[0.14em] text-brand uppercase">Reference Solutions</p>
+                    <div className="space-y-1.5">
+                      {[
+                        { title: 'RS Aggarwal Solutions', url: '/reference-solutions/rs-aggarwal' },
+                        { title: 'RD Sharma Solutions', url: '/reference-solutions/rd-sharma' },
+                        { title: 'ML Aggarwal Solutions', url: '/reference-solutions/ml-aggarwal' },
+                      ].map((b) => (
+                        <Link
+                          key={b.url}
+                          to={b.url}
+                          onClick={() => setOpen(false)}
+                          className="flex items-center justify-between rounded-lg border bg-card p-2.5 text-xs font-bold text-foreground/90 hover:border-brand hover:text-brand"
+                        >
+                          <span>{b.title}</span>
+                          <span className="text-[10px] text-muted-foreground">Class 6–12</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="mt-6 mb-1 text-xs font-extrabold tracking-[0.14em] text-brand uppercase">{term('class')} 6–12 {term('mathematics')}</p>
                   <ul>
                     {classes.map((cls) => (
                       <ClassAccordion key={cls._id} cls={cls} open={expanded === cls._id} onToggle={() => setExpanded((id) => (id === cls._id ? null : cls._id))} />

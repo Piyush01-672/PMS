@@ -124,6 +124,7 @@ function ChapterExercisesPanel({ chapterId, classId }) {
 const CHAPTER_DEFAULTS = {
   class: null,
   subject: null,
+  book: null,
   number: undefined,
   title: {},
   slug: '',
@@ -131,6 +132,8 @@ const CHAPTER_DEFAULTS = {
   image: null,
   featuredImage: null,
   introVideo: null,
+  pdfFile: null,
+  pdfUrl: '',
   introduction: {},
   formulas: [],
   notes: {},
@@ -192,10 +195,25 @@ export function ChapterEditor({ id }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <RefSelect label="Class" required resource="classes" value={form.class} onChange={(v) => setField('class', v)} />
                 <RefSelect label="Subject" required resource="subjects" value={form.subject} onChange={(v) => setField('subject', v)} />
+                <RefSelect
+                  label="Reference Book (Optional — संदर्भ पुस्तक)"
+                  resource="books"
+                  value={form.book}
+                  onChange={(v) => setField('book', v)}
+                  labelOf={(b) => b.title?.en || b.title?.hi || b.name || 'Book'}
+                />
                 <NumberField label="अध्याय number" required value={form.number} onChange={(v) => setField('number', v)} min={0} />
                 <SlugField value={form.slug} onChange={(v) => setField('slug', v)} suggestion={form.number !== undefined ? `adhyay-${form.number}` : ''} prefix={classSlug ? `/${classSlug}/${subjectSlug || 'maths'}/` : undefined} />
                 <L10nField className="sm:col-span-2" label="Title" required value={form.title} onChange={(v) => setField('title', v)} placeholder="समांतर श्रेढ़ियाँ / Arithmetic Progressions" />
                 <L10nField className="sm:col-span-2" label="Short description" multiline rows={2} value={form.shortDescription} onChange={(v) => setField('shortDescription', v)} />
+              </div>
+            </Panel>
+            <Panel title="PDF Solutions / Chapter Notes (Optional)">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <MediaField label="Chapter PDF / Solution" kind="pdf" value={form.pdfFile} onChange={(v) => setField('pdfFile', v)} hint="Upload full chapter notes/solution PDF." />
+                <Field label="Or External Chapter PDF URL">
+                  <input type="url" value={form.pdfUrl || ''} onChange={(e) => setField('pdfUrl', e.target.value)} placeholder="https://..." className="h-9 w-full rounded-md border bg-transparent px-3 text-xs" />
+                </Field>
               </div>
             </Panel>
             <Panel title="Images & video">

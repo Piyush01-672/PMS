@@ -99,7 +99,7 @@ const siteSettingsSchema = new Schema(
       },
     ],
     language: {
-      default: { type: String, enum: ['hi', 'en'], default: 'hi' },
+      default: { type: String, enum: ['hi', 'en', 'mixed'], default: 'hi' },
       enableToggle: { type: Boolean, default: true },
       showLanguageNotice: { type: Boolean, default: true },
     },

@@ -11,6 +11,7 @@ import {
   AdSlot,
   Admin,
   Announcement,
+  Book,
   Chapter,
   ClassLevel,
   DEFAULT_TERMINOLOGY,
@@ -21,19 +22,44 @@ import {
   Note,
   Page,
   Question,
+  Resource,
   Section,
   SeoSetting,
   SiteSettings,
   Solution,
   Subject,
   Template,
+  Topic,
+  Video,
 } from '../models/index.js';
 import * as data from '../seed/data.js';
 import { apGraphSvg, constructionSvg, triangleSvg } from '../seed/diagrams.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const RESET = process.argv.includes('--reset');
-const CONTENT_MODELS = [ClassLevel, Subject, Chapter, Exercise, Question, Solution, Note, ImportantQuestion, Page, Section, Navigation, Announcement, SeoSetting, Template, AdSlot, Media, SiteSettings];
+const CONTENT_MODELS = [
+  ClassLevel,
+  Subject,
+  Chapter,
+  Topic,
+  Resource,
+  Book,
+  Exercise,
+  Question,
+  Solution,
+  Note,
+  ImportantQuestion,
+  Page,
+  Section,
+  Navigation,
+  Announcement,
+  SeoSetting,
+  Template,
+  AdSlot,
+  Media,
+  Video,
+  SiteSettings,
+];
 
 async function uploadAsset({ buffer, name, title, kind, alt, caption }) {
   const info = detectImage(buffer);
@@ -189,6 +215,83 @@ async function run() {
     const { classNumber, chapterNumber, blocks, ...fields } = iq;
     await ImportantQuestion.create({ ...fields, blocks, class: classDocs[classNumber]._id, subject: maths._id, chapter: chapterDocs[`${classNumber}-${chapterNumber}`]._id, sortOrder: i, status: 'published' });
   }
+
+  const topicDocs = {};
+  for (const [i, tp] of (data.topics || []).entries()) {
+    const { classNumber, chapterNumber, videos = [], externalLinks = [], estimatedTime, ...fields } = tp;
+
+    const videoIds = [];
+    for (const v of videos) {
+      if (!v || !v.url) continue;
+      let vid = await Video.findOne({ url: v.url });
+      if (!vid) {
+        vid = await Video.create({
+          provider: 'youtube',
+          url: v.url,
+          title: typeof v.title === 'string' ? { en: v.title, hi: v.title } : (v.title || { en: 'Video Lesson', hi: 'वीडियो पाठ' }),
+          description: typeof v.description === 'string' ? { en: v.description, hi: v.description } : v.description,
+        });
+      }
+      videoIds.push(vid._id);
+    }
+
+    const formattedLinks = (externalLinks || []).map((lk) => ({
+      title: typeof lk.title === 'string' ? { en: lk.title, hi: lk.title } : (lk.title || { en: '', hi: '' }),
+      description: typeof lk.description === 'string' ? { en: lk.description, hi: lk.description } : (lk.description || { en: '', hi: '' }),
+      url: lk.url,
+      category: lk.category || 'reference',
+    }));
+
+    const formattedTime = typeof estimatedTime === 'string'
+      ? { en: estimatedTime, hi: estimatedTime }
+      : (estimatedTime || { en: '30 min', hi: '30 मिनट' });
+
+    const topic = await Topic.create({
+      ...fields,
+      class: classDocs[classNumber]._id,
+      subject: maths._id,
+      chapter: chapterDocs[`${classNumber}-${chapterNumber}`]._id,
+      video: videoIds[0] || null,
+      videos: videoIds,
+      externalLinks: formattedLinks,
+      estimatedTime: formattedTime,
+      sortOrder: i,
+      status: 'published',
+    });
+    topicDocs[`${classNumber}-${chapterNumber}-${tp.slug}`] = topic;
+  }
+
+  for (const [i, res] of (data.resources || []).entries()) {
+    const { classNumber, chapterNumber, fileSize, ...fields } = res;
+    const formattedSize = typeof fileSize === 'number'
+      ? `${(fileSize / (1024 * 1024)).toFixed(1)} MB`
+      : (fileSize || '');
+    await Resource.create({
+      ...fields,
+      fileSize: formattedSize,
+      class: classNumber ? classDocs[classNumber]?._id : null,
+      subject: maths._id,
+      chapter: (classNumber && chapterNumber) ? chapterDocs[`${classNumber}-${chapterNumber}`]?._id : null,
+      sortOrder: i,
+      status: 'published',
+    });
+  }
+
+  for (const [i, bk] of (data.books || []).entries()) {
+    const { classNumber, chapterNumber, subjectSlug, title, recommendedFor, price, ...fields } = bk;
+    await Book.create({
+      ...fields,
+      title: typeof title === 'string' ? { en: title, hi: title } : title,
+      recommendedFor: typeof recommendedFor === 'string' ? { en: recommendedFor, hi: recommendedFor } : recommendedFor,
+      price: price ? (typeof price === 'number' ? `₹${price}` : String(price)) : '',
+      class: classNumber ? classDocs[classNumber]?._id : null,
+      subject: maths._id,
+      chapter: (classNumber && chapterNumber) ? chapterDocs[`${classNumber}-${chapterNumber}`]?._id : null,
+      sortOrder: i,
+      status: 'published',
+    });
+  }
+
   for (const [i, pg] of data.pages.entries()) await Page.create({ ...pg, sortOrder: i, status: 'published' });
 
   await Navigation.create([

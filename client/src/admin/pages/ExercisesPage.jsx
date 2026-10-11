@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { adminUrl } from '@/lib/config';
 import { EditorShell } from '../components/EditorShell.jsx';
 import { ChapterFilter, ClassFilter, useQueryFilters } from '../components/filters.jsx';
-import { L10nField, LanguageModeField, SlugField, TextField } from '../components/fields/Fields.jsx';
+import { Field, L10nField, LanguageModeField, SlugField, TextField } from '../components/fields/Fields.jsx';
 import { RefSelect } from '../components/fields/RefSelect.jsx';
 import { RichL10nField } from '../components/fields/RichL10nField.jsx';
 import { VideoField } from '../components/fields/VideoField.jsx';
 import { LocalizedCell } from '../components/LocalizedCell.jsx';
+import { MediaField } from '../components/media/MediaFields.jsx';
 import { Panel } from '../components/PageHeader.jsx';
 import { PreviewDialog } from '../components/PreviewDialog.jsx';
 import { ResourceListPage } from '../components/ResourceListPage.jsx';
@@ -87,7 +88,7 @@ function ExerciseQuestionsPanel({ exerciseId }) {
   );
 }
 
-const EXERCISE_DEFAULTS = { chapter: null, number: '', title: {}, slug: '', description: {}, instructions: {}, introVideo: null, notes: {}, languageMode: 'auto', seo: {}, status: 'draft', isVisible: true };
+const EXERCISE_DEFAULTS = { chapter: null, number: '', title: {}, slug: '', description: {}, instructions: {}, introVideo: null, pdfFile: null, pdfUrl: '', notes: {}, languageMode: 'auto', seo: {}, status: 'draft', isVisible: true };
 
 export function ExerciseEditor({ id }) {
   const [params] = useSearchParams();
@@ -156,6 +157,14 @@ export function ExerciseEditor({ id }) {
             </Panel>
             <Panel title="Video">
               <VideoField label="प्रश्नावली introduction video" value={form.introVideo} onChange={(v) => setField('introVideo', v)} />
+            </Panel>
+            <Panel title="PDF Solutions (Optional — समाधान पीडीएफ)">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <MediaField label="Exercise Solutions PDF" kind="pdf" value={form.pdfFile} onChange={(v) => setField('pdfFile', v)} hint="Upload step-by-step PDF solution for this exercise." />
+                <Field label="Or External Solution PDF URL">
+                  <input type="url" value={form.pdfUrl || ''} onChange={(e) => setField('pdfUrl', e.target.value)} placeholder="https://..." className="h-9 w-full rounded-md border bg-transparent px-3 text-xs" />
+                </Field>
+              </div>
             </Panel>
             <Panel title="Notes">
               <RichL10nField value={form.notes} onChange={(v) => setField('notes', v)} />

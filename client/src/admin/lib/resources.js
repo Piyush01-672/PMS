@@ -19,13 +19,17 @@ export const RESOURCES = {
   announcements: { endpoint: '/announcements', singular: 'Announcement', plural: 'Announcements', entityType: 'Announcement' },
   videos: { endpoint: '/videos', singular: 'Video', plural: 'YouTube Videos', entityType: 'Video' },
   media: { endpoint: '/media', singular: 'Media', plural: 'Media', entityType: 'Media' },
+  topics: { endpoint: '/topics', singular: 'Topic', plural: 'Topics', entityType: 'Topic' },
+  resources: { endpoint: '/resources', singular: 'Resource', plural: 'Resources', entityType: 'Resource' },
+  books: { endpoint: '/books', singular: 'Book', plural: 'Books', entityType: 'Book' },
 };
 
 const REF_KEYS = new Set([
   'media', 'video', 'ogImage', 'image', 'featuredImage', 'introVideo', 'thumbnail', 'logo', 'footerLogo', 'favicon',
   'defaultOgImage', 'class', 'subject', 'chapter', 'exercise', 'question', 'linkedQuestion', 'template', 'target', 'source',
+  'topic', 'resource', 'book',
 ]);
-const REF_ARRAY_KEYS = new Set(['subjects', 'relatedChapters', 'classes', 'chapters', 'questions', 'importantQuestions', 'notes', 'videos', 'gallery']);
+const REF_ARRAY_KEYS = new Set(['subjects', 'relatedChapters', 'classes', 'chapters', 'questions', 'importantQuestions', 'notes', 'videos', 'gallery', 'topics', 'resources', 'books']);
 const READ_ONLY = new Set(['__v', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'searchText']);
 
 export const refId = (value) => (value && typeof value === 'object' ? value._id : value) || undefined;

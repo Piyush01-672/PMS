@@ -23,6 +23,9 @@ const chapterSchema = new Schema(
     image: { type: ObjectId, ref: 'Media' },
     featuredImage: { type: ObjectId, ref: 'Media' },
     introVideo: { type: ObjectId, ref: 'Video' },
+    book: { type: ObjectId, ref: 'Book', index: true },
+    pdfFile: { type: ObjectId, ref: 'Media' },
+    pdfUrl: { type: String, default: '', trim: true, maxlength: 2000 },
     introduction: richL10n(),
     formulas: [FormulaSchema],
     notes: richL10n(),
@@ -36,7 +39,7 @@ const chapterSchema = new Schema(
 );
 
 chapterSchema.plugin(contentPlugin);
-chapterSchema.index({ class: 1, subject: 1, slug: 1 }, { unique: true });
+chapterSchema.index({ class: 1, subject: 1, book: 1, slug: 1 }, { unique: true });
 chapterSchema.index({ class: 1, subject: 1, sortOrder: 1, number: 1 });
 chapterSchema.index({ searchText: 'text' }, { default_language: 'none' });
 

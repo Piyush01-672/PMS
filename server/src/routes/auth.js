@@ -18,6 +18,7 @@ import { logActivity } from '../services/activity.js';
 const router = express.Router();
 const DUMMY_HASH = bcrypt.hashSync('pms-timing-equalizer-password', 12);
 const ISSUER = 'Passion Maths Study';
+const lockoutEnabled = env.NODE_ENV !== 'development';
 
 const cookieOptions = () => ({
   httpOnly: true,
@@ -64,6 +65,22 @@ async function startSession(req, res, admin) {
 }
 
 async function registerFailure(req, admin, reason) {
+  if (!lockoutEnabled) {
+    admin.failedLoginAttempts = 0;
+    admin.lockUntil = undefined;
+    await admin.save();
+    await logActivity(req, {
+      action: 'login_failed',
+      admin,
+      entityType: 'Admin',
+      entityId: admin._id,
+      entityLabel: admin.email,
+      severity: 'warning',
+      meta: { reason, attempts: 0, lockoutDisabled: true },
+    });
+    return;
+  }
+
   admin.failedLoginAttempts = (admin.failedLoginAttempts || 0) + 1;
   if (admin.failedLoginAttempts >= env.LOGIN_MAX_ATTEMPTS) {
     admin.lockUntil = new Date(Date.now() + env.LOGIN_LOCK_MINUTES * 60_000);
@@ -119,7 +136,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     await logActivity(req, { action: 'login_failed', severity: 'warning', entityType: 'Admin', entityLabel: email, meta: { reason: 'unknown_email' } });
     throw invalid;
   }
-  if (admin.isLocked()) {
+  if (lockoutEnabled && admin.isLocked()) {
     await logActivity(req, { action: 'login_failed', admin, severity: 'warning', entityType: 'Admin', entityId: admin._id, entityLabel: email, meta: { reason: 'locked' } });
     throw lockedError(admin);
   }
@@ -154,7 +171,7 @@ router.post('/2fa/verify', twoFactorLimiter, async (req, res) => {
   }
   const admin = await Admin.findById(payload.sub).select('+totpSecretEnc');
   if (!admin || !admin.isActive || !admin.totpEnabled) throw new ApiError(401, 'Verification failed. Please sign in again.');
-  if (admin.isLocked()) throw lockedError(admin);
+  if (lockoutEnabled && admin.isLocked()) throw lockedError(admin);
   if (!(await verifyTotp(admin, code))) {
     await registerFailure(req, admin, 'bad_2fa_code');
     throw new ApiError(401, 'Invalid verification code');

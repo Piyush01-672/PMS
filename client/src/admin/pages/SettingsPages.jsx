@@ -476,8 +476,9 @@ export function LanguageSettingsPage() {
                     value={form.language?.default}
                     onChange={(v) => patch('language', { default: v })}
                     options={[
-                      { value: 'hi', label: 'हिंदी' },
+                      { value: 'hi', label: 'हिंदी (Hindi)' },
                       { value: 'en', label: 'English' },
+                      { value: 'mixed', label: 'Hinglish (Mixed Hindi-English)' },
                     ]}
                   />
                   <SwitchField label="Enable हिंदी / ENG switch" checked={form.language?.enableToggle} onChange={(v) => patch('language', { enableToggle: v })} />

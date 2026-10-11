@@ -15,7 +15,7 @@ import { getSiteBootstrap } from '../services/site.js';
 const router = express.Router();
 // Browsers must revalidate (cheap 304 via ETag) so admin changes appear immediately; the server cache is cleared on every save.
 const FRESH = 'public, no-cache';
-const PREVIEW_TYPES = new Set(['Class', 'Chapter', 'Exercise', 'Question', 'Note', 'Page']);
+const PREVIEW_TYPES = new Set(['Class', 'Chapter', 'Exercise', 'Question', 'Note', 'Page', 'Topic']);
 
 const isPreview = (req) => req.query.preview === '1' && Boolean(req.admin);
 const intParam = (value, fallback) => Math.max(1, Number.parseInt(value, 10) || fallback);
@@ -67,10 +67,13 @@ router.get('/suggest', searchLimiter, async (req, res) => {
 router.post('/preview', requireAuth, requirePermission('content:read'), async (req, res) => {
   const { entityType, id, data, solution } = req.body || {};
   if (!PREVIEW_TYPES.has(entityType) || !isObjectId(id)) throw new ApiError(400, 'Invalid preview request');
+  const extraStrip = entityType === 'Topic'
+    ? ['slug', 'status', 'publishedAt', 'class', 'subject', 'exercise']
+    : ['slug', 'status', 'publishedAt', 'class', 'subject', 'chapter', 'exercise'];
   const token = savePreview({
     entityType,
     id,
-    data: stripProtected(data || {}, ['slug', 'status', 'publishedAt', 'class', 'subject', 'chapter', 'exercise']),
+    data: stripProtected(data || {}, extraStrip),
     solution: entityType === 'Question' && solution ? { blocks: solution.blocks || [], languageMode: solution.languageMode } : null,
   });
   res.json({ token });

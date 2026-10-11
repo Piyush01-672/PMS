@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, KeyRound, Loader2, ShieldCheck } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,8 @@ export default function LoginPage() {
   const queryClient = useQueryClient();
   const ref = useRef(null);
   const me = useQuery(meQuery);
-  const [email, setEmail] = useState('admin@pms.com');
-  const [password, setPassword] = useState('PmsStudy#2026');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [challenge, setChallenge] = useState(null);
   const [code, setCode] = useState('');
@@ -128,39 +128,6 @@ export default function LoginPage() {
                     <ArrowLeft className="size-3" /> Home
                   </Link>
                 </Button>
-              </div>
-
-              {/* Dummy Admin Quick Access Box */}
-              <div className="rounded-xl border border-brand/20 bg-brand-soft/40 p-3.5 text-xs">
-                <div className="flex items-center justify-between font-semibold text-foreground">
-                  <span className="flex items-center gap-1.5 text-brand">
-                    <Sparkles className="size-3.5" /> Dummy Admin Credentials
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('admin@pms.com');
-                      setPassword('PmsStudy#2026');
-                    }}
-                    className="rounded bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-brand transition hover:bg-brand/20"
-                  >
-                    Auto Fill
-                  </button>
-                </div>
-                <div className="mt-2 space-y-1 text-muted-foreground">
-                  <div className="flex items-center justify-between">
-                    <span>Email:</span>
-                    <code className="rounded bg-background px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground select-all">
-                      admin@pms.com
-                    </code>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Password:</span>
-                    <code className="rounded bg-background px-1.5 py-0.5 font-mono text-[11px] font-semibold text-foreground select-all">
-                      PmsStudy#2026
-                    </code>
-                  </div>
-                </div>
               </div>
 
               <div className="space-y-1.5">

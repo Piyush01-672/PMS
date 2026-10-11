@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, BookOpen, CircleHelp, Clock, FileText, Image, ListOrdered, MonitorPlay as Youtube, Plus, Route, Star } from 'lucide-react';
+import { AlertTriangle, BookOpen, BookOpenCheck, CircleHelp, Clock, FileDown, FileText, GraduationCap, Image, Layers, ListOrdered, Megaphone, MonitorPlay as Youtube, Plus, Route, Star } from 'lucide-react';
 import { useRef } from 'react';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
@@ -14,21 +14,26 @@ import { useAdminAuth } from '../lib/auth.jsx';
 import { timeAgo } from '../lib/format.js';
 
 const CARDS = [
-  { key: 'classes', label: 'Classes', icon: BookOpen, to: 'classes' },
-  { key: 'chapters', label: 'Chapters', icon: BookOpen, to: 'chapters' },
+  { key: 'classes', label: 'Classes', icon: GraduationCap, to: 'classes' },
+  { key: 'chapters', label: 'Chapters', icon: Layers, to: 'chapters' },
+  { key: 'topics', label: 'Topics', icon: BookOpen, to: 'topics' },
+  { key: 'resources', label: 'PDFs & Files', icon: FileDown, to: 'resources' },
+  { key: 'books', label: 'Books', icon: BookOpenCheck, to: 'books' },
+  { key: 'videos', label: 'Videos', icon: Youtube, to: 'videos' },
+  { key: 'notes', label: 'Notes', icon: FileText, to: 'notes' },
   { key: 'exercises', label: 'Exercises', icon: ListOrdered, to: 'exercises' },
   { key: 'questions', label: 'Questions', icon: CircleHelp, to: 'questions' },
   { key: 'solutions', label: 'Solutions', icon: Route, to: 'solutions' },
-  { key: 'notes', label: 'Notes', icon: FileText, to: 'notes' },
-  { key: 'importantQuestions', label: 'Important Qs', icon: Star, to: 'important-questions' },
-  { key: 'images', label: 'Images', icon: Image, to: 'media' },
-  { key: 'diagrams', label: 'Diagrams & Graphs', icon: Image, to: 'diagrams' },
-  { key: 'videos', label: 'Videos', icon: Youtube, to: 'videos' },
+  { key: 'announcements', label: 'Notices', icon: Megaphone, to: 'announcements' },
 ];
 
 const EDIT_PATHS = {
   classes: 'classes',
   chapters: 'chapters',
+  topics: 'topics',
+  resources: 'resources',
+  books: 'books',
+  announcements: 'announcements',
   exercises: 'exercises',
   questions: 'questions',
   notes: 'notes',
@@ -50,18 +55,28 @@ export default function OverviewPage() {
         title={`Welcome, ${admin?.name?.split(' ')[0] || 'Admin'}`}
         description="Everything on the student website is managed from here."
         actions={
-          <>
-            <Button asChild variant="outline" size="lg">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to={adminUrl('topics/new')}>
+                <Plus className="size-4" /> Topic
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to={adminUrl('resources/new')}>
+                <Plus className="size-4" /> PDF / File
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to={adminUrl('books/new')}>
+                <Plus className="size-4" /> Book
+              </Link>
+            </Button>
+            <Button asChild size="sm">
               <Link to={adminUrl('chapters/new')}>
-                <Plus /> Chapter
+                <Plus className="size-4" /> Chapter
               </Link>
             </Button>
-            <Button asChild size="lg">
-              <Link to={adminUrl('questions/new')}>
-                <Plus /> Question
-              </Link>
-            </Button>
-          </>
+          </div>
         }
       />
 

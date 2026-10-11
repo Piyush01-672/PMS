@@ -70,6 +70,108 @@ function ClassesMenu({ label }) {
   );
 }
 
+function StudyMaterialsMenu() {
+  const items = [
+    { title: 'NCERT Solutions', sub: 'Class 6–12 step-by-step solutions', url: '/study-materials/ncert-solutions' },
+    { title: 'NCERT Books', sub: 'Latest edition textbook PDFs', url: '/study-materials/ncert-books' },
+    { title: 'NCERT Notes', sub: 'Key formulas & chapter summaries', url: '/study-materials/ncert-notes' },
+    { title: 'CBSE Sample Papers', sub: 'Model papers & PYQ with solutions', url: '/study-materials/cbse-sample-papers' },
+    { title: 'Extra Questions', sub: 'Practice questions with steps', url: '/study-materials/extra-questions' },
+    { title: 'Important Questions', sub: 'High-scoring board questions', url: '/study-materials/important-questions' },
+    { title: 'English Summaries', sub: 'Concept summaries & proof guides', url: '/study-materials/english-summaries' },
+    { title: 'Syllabus', sub: 'Updated CBSE curriculum & marking', url: '/study-materials/syllabus' },
+  ];
+
+  return (
+    <NavigationMenuItem>
+      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+        Study Materials
+      </NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <div className="grid w-[36rem] grid-cols-2 gap-2 p-3">
+          {items.map((item) => (
+            <Link key={item.url} to={item.url} className="group rounded-xl p-2.5 transition hover:bg-muted/80">
+              <span className="block text-sm font-bold text-foreground group-hover:text-brand">
+                {item.title}
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                {item.sub}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+  );
+}
+
+function ReferenceSolutionsMenu() {
+  const items = [
+    { title: 'RS Aggarwal Solutions', author: 'R.S. Aggarwal', sub: 'Classes 6 to 12 solutions', url: '/reference-solutions/rs-aggarwal' },
+    { title: 'RD Sharma Solutions', author: 'Dr. R.D. Sharma', sub: 'Detailed question steps & proofs', url: '/reference-solutions/rd-sharma' },
+    { title: 'ML Aggarwal Solutions', author: 'M.L. Aggarwal', sub: 'Understanding Mathematics solutions', url: '/reference-solutions/ml-aggarwal' },
+  ];
+
+  return (
+    <NavigationMenuItem>
+      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+        Reference Solutions
+      </NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <div className="w-80 p-2 space-y-1">
+          {items.map((item) => (
+            <Link key={item.url} to={item.url} className="group flex items-center justify-between rounded-xl p-2.5 transition hover:bg-muted/80">
+              <div>
+                <span className="block text-sm font-bold text-foreground group-hover:text-brand">
+                  {item.title}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {item.sub}
+                </span>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-brand" />
+            </Link>
+          ))}
+          <div className="border-t pt-1.5 mt-1">
+            <Link to="/reference-solutions" className="block text-center text-xs font-bold text-brand hover:underline py-1">
+              Browse All Reference Books →
+            </Link>
+          </div>
+        </div>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+  );
+}
+
+function MoreMenu() {
+  const items = [
+    { title: 'Search Website', url: '/search' },
+    { title: 'Important Formulas', url: '/class-10/maths/prashnavali' },
+    { title: 'About Passion Maths', url: '/about-us' },
+    { title: 'Contact Us', url: '/contact' },
+    { title: 'Privacy Policy', url: '/privacy-policy' },
+  ];
+
+  return (
+    <NavigationMenuItem>
+      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+        More
+      </NavigationMenuTrigger>
+      <NavigationMenuContent>
+        <ul className="w-52 p-2 space-y-0.5">
+          {items.map((item) => (
+            <li key={item.url}>
+              <Link to={item.url} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted hover:text-brand">
+                {item.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </NavigationMenuContent>
+    </NavigationMenuItem>
+  );
+}
+
 function MobileSearch() {
   const [open, setOpen] = useState(false);
   return (
@@ -93,6 +195,7 @@ function MobileSearch() {
 export function Header() {
   const site = useSite();
   const t = useL10n();
+  const term = useTerm();
   const header = site?.settings?.header || {};
   const items = site?.navigation?.header || [];
 
@@ -105,60 +208,15 @@ export function Header() {
     >
       <div className="container-page flex h-[var(--header-height)] items-center gap-3">
         <MobileMenu />
-        <Logo className="mr-auto lg:mr-2" textClassName="max-w-[10.5rem] sm:max-w-none" />
+        <Logo className="mr-auto lg:mr-2 sm:hidden" showText={false} />
+        <Logo className="mr-auto lg:mr-2 hidden sm:flex" />
 
         <NavigationMenu viewport={false} className="hidden lg:flex" aria-label="Main">
           <NavigationMenuList className="gap-0.5">
-            {items.length > 0 ? (
-              items.map((item) => {
-                if (item.type === 'classes') return <ClassesMenu key={item._id} label={t(item.label)} />;
-                if (item.type === 'column') {
-                  return (
-                    <NavigationMenuItem key={item._id}>
-                      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75">{t(item.label)}</NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="w-64 p-2">
-                          {item.children.map((child) => (
-                            <li key={child._id}>
-                              <SmartLink to={child.url} newTab={child.newTab} className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted">
-                                {t(child.label)} <ChevronRight className="size-4 text-muted-foreground" />
-                              </SmartLink>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                  );
-                }
-                return (
-                  <NavigationMenuItem key={item._id}>
-                    {item.newTab || /^https?:/.test(item.url) ? (
-                      <SmartLink to={item.url} newTab className={navLinkClass({ isActive: false })}>
-                        {t(item.label)}
-                      </SmartLink>
-                    ) : (
-                      <NavLink to={item.url || '/'} end={item.url === '/'} className={navLinkClass}>
-                        {t(item.label)}
-                      </NavLink>
-                    )}
-                  </NavigationMenuItem>
-                );
-              })
-            ) : (
-              <>
-                <ClassesMenu label={term('class')} />
-                <NavigationMenuItem>
-                  <NavLink to="/#classes" className={navLinkClass}>
-                    NCERT Solutions
-                  </NavLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavLink to="/search" className={navLinkClass}>
-                    Search
-                  </NavLink>
-                </NavigationMenuItem>
-              </>
-            )}
+            <ClassesMenu label={term('class')} />
+            <StudyMaterialsMenu />
+            <ReferenceSolutionsMenu />
+            <MoreMenu />
           </NavigationMenuList>
         </NavigationMenu>
 

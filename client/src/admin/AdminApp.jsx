@@ -12,9 +12,13 @@ import OverviewPage from './pages/OverviewPage.jsx';
 const named = (loader, name) => lazy(() => loader().then((module) => ({ default: module[name] })));
 const classes = () => import('./pages/ClassesPage.jsx');
 const chapters = () => import('./pages/ChaptersPage.jsx');
+const topics = () => import('./pages/TopicsPage.jsx');
 const exercises = () => import('./pages/ExercisesPage.jsx');
 const questions = () => import('./pages/QuestionsPage.jsx');
 const notes = () => import('./pages/NotesPage.jsx');
+const resources = () => import('./pages/ResourcesPage.jsx');
+const books = () => import('./pages/BooksPage.jsx');
+const announcements = () => import('./pages/AnnouncementsPage.jsx');
 const templates = () => import('./pages/TemplatesPage.jsx');
 const pages = () => import('./pages/PagesPage.jsx');
 const media = () => import('./pages/MediaPages.jsx');
@@ -28,6 +32,8 @@ const SubjectsList = named(classes, 'SubjectsList');
 const SubjectEditor = named(classes, 'SubjectEditor');
 const ChaptersList = named(chapters, 'ChaptersList');
 const ChapterEditor = named(chapters, 'ChapterEditor');
+const TopicsList = named(topics, 'TopicsList');
+const TopicEditor = named(topics, 'TopicEditor');
 const ExercisesList = named(exercises, 'ExercisesList');
 const ExerciseEditor = named(exercises, 'ExerciseEditor');
 const QuestionsList = named(questions, 'QuestionsList');
@@ -35,6 +41,12 @@ const QuestionEditor = named(questions, 'QuestionEditor');
 const SolutionsList = named(questions, 'SolutionsList');
 const NotesList = named(notes, 'NotesList');
 const NoteEditor = named(notes, 'NoteEditor');
+const ResourcesList = named(resources, 'ResourcesList');
+const ResourceEditor = named(resources, 'ResourceEditor');
+const BooksList = named(books, 'BooksList');
+const BookEditor = named(books, 'BookEditor');
+const AnnouncementsList = named(announcements, 'AnnouncementsList');
+const AnnouncementEditor = named(announcements, 'AnnouncementEditor');
 const ImportantQuestionsList = named(notes, 'ImportantQuestionsList');
 const ImportantQuestionEditor = named(notes, 'ImportantQuestionEditor');
 const TemplatesList = named(templates, 'TemplatesList');
@@ -59,6 +71,7 @@ const AdminsPage = named(system, 'AdminsPage');
 const ActivityPage = named(system, 'ActivityPage');
 const BackupsPage = named(system, 'BackupsPage');
 const AccountPage = named(system, 'AccountPage');
+
 
 /** Editors get key={id} so switching documents always starts with a fresh form. */
 function EditorRoute({ component: Component }) {
@@ -102,6 +115,8 @@ export default function AdminApp() {
               <Route path="subjects/:id" element={<EditorRoute component={SubjectEditor} />} />
               <Route path="chapters" element={<ChaptersList />} />
               <Route path="chapters/:id" element={<EditorRoute component={ChapterEditor} />} />
+              <Route path="topics" element={<TopicsList />} />
+              <Route path="topics/:id" element={<EditorRoute component={TopicEditor} />} />
               <Route path="exercises" element={<ExercisesList />} />
               <Route path="exercises/:id" element={<EditorRoute component={ExerciseEditor} />} />
               <Route path="questions" element={<QuestionsList />} />
@@ -109,10 +124,17 @@ export default function AdminApp() {
               <Route path="solutions" element={<SolutionsList />} />
               <Route path="notes" element={<NotesList />} />
               <Route path="notes/:id" element={<EditorRoute component={NoteEditor} />} />
+              <Route path="resources" element={<ResourcesList />} />
+              <Route path="resources/:id" element={<EditorRoute component={ResourceEditor} />} />
+              <Route path="books" element={<BooksList />} />
+              <Route path="books/:id" element={<EditorRoute component={BookEditor} />} />
+              <Route path="announcements" element={<AnnouncementsList />} />
+              <Route path="announcements/:id" element={<EditorRoute component={AnnouncementEditor} />} />
               <Route path="important-questions" element={<ImportantQuestionsList />} />
               <Route path="important-questions/:id" element={<EditorRoute component={ImportantQuestionEditor} />} />
               <Route path="templates" element={<TemplatesList />} />
               <Route path="templates/:id" element={<EditorRoute component={TemplateEditor} />} />
+
 
               <Route path="media" element={<MediaLibraryPage />} />
               <Route path="diagrams" element={<DiagramsPage />} />

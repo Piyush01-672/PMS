@@ -411,3 +411,421 @@ export const pages = [
     ),
   },
 ];
+
+export const topics = [
+  {
+    classNumber: 10,
+    chapterNumber: 4,
+    number: 1,
+    slug: 'introduction-to-quadratic-equations',
+    title: {
+      hi: 'द्विघात समीकरण का परिचय एवं मानक रूप',
+      en: 'Introduction to Quadratic Equations & Standard Form',
+    },
+    shortDescription: {
+      hi: 'द्विघात समीकरण की परिभाषा, मानक रूप ax² + bx + c = 0 और व्यावहारिक अनुप्रयोग।',
+      en: 'Definition of quadratic equations, standard form ax² + bx + c = 0, and practical applications.',
+    },
+    difficulty: 'easy',
+    estimatedTime: '25 min',
+    featured: true,
+    videos: [
+      {
+        title: {
+          hi: 'द्विघात समीकरण क्या है? (Concept & Examples)',
+          en: 'What is a Quadratic Equation? (Concept & Examples)',
+        },
+        description: {
+          hi: 'द्विघात समीकरण की मूल अवधारणा और मानक रूप को समझने के लिए विस्तृत वीडियो व्याख्यान।',
+          en: 'Comprehensive conceptual video on standard forms and identifying quadratic equations.',
+        },
+        source: 'youtube',
+        url: 'https://www.youtube.com/watch?v=gT8_4k7_o_Q',
+        duration: '14:20',
+        lessonNumber: 1,
+        teacherName: 'Nitish Sir',
+      },
+      {
+        title: {
+          hi: 'द्विघात समीकरण की पहचान कैसे करें',
+          en: 'How to Identify Quadratic Equations',
+        },
+        source: 'youtube',
+        url: 'https://www.youtube.com/watch?v=Z5bCkgx_cHg',
+        duration: '10:45',
+        lessonNumber: 2,
+        teacherName: 'Nitish Sir',
+      },
+    ],
+    notes: {
+      hi: `<h3>1. द्विघात समीकरण की परिभाषा</h3><p>चर $x$ में एक द्विघात समीकरण <strong>$ax^2 + bx + c = 0$</strong> के प्रकार का होता है, जहाँ $a, b, c$ वास्तविक संख्याएँ हैं और <strong>$a \\neq 0$</strong> है।</p><h3>2. द्विघात समीकरण का मानक रूप</h3><p>जब किसी द्विघात बहुपद को चर की घातों के घटते क्रम में लिखा जाता है, तो उसे मानक रूप (Standard Form) कहते हैं:</p><p class="my-2 p-3 bg-muted rounded-lg font-mono text-center">$$ax^2 + bx + c = 0, \\quad a \\neq 0$$</p><h3>3. मुख्य बिंदु:</h3><ul><li>यदि $a = 0$ हो जाए, तो यह रैखिक समीकरण ($bx + c = 0$) बन जाएगा।</li><li>द्विघात समीकरण के अधिकतम <strong>2 मूल (roots)</strong> होते हैं।</li><li>समीकरण $(x-2)^2 + 1 = 2x - 3$ को सरल करने पर $x^2 - 6x + 8 = 0$ प्राप्त होता है, जो एक द्विघात समीकरण है।</li></ul>`,
+      en: `<h3>1. Definition of Quadratic Equation</h3><p>A quadratic equation in the variable $x$ is an equation of the form <strong>$ax^2 + bx + c = 0$</strong>, where $a, b, c$ are real numbers and <strong>$a \\neq 0$</strong>.</p><h3>2. Standard Form</h3><p>Writing the terms in descending order of degrees gives the standard form:</p><p class="my-2 p-3 bg-muted rounded-lg font-mono text-center">$$ax^2 + bx + c = 0, \\quad a \\neq 0$$</p><h3>3. Key Takeaways:</h3><ul><li>If $a = 0$, it reduces to a linear equation ($bx + c = 0$).</li><li>A quadratic equation has at most <strong>2 roots</strong>.</li><li>Expanding $(x-2)^2 + 1 = 2x - 3$ simplifies to $x^2 - 6x + 8 = 0$, which is quadratic.</li></ul>`,
+    },
+    formulas: [
+      {
+        title: { hi: 'द्विघात समीकरण का मानक रूप', en: 'Standard Form of Quadratic Equation' },
+        latex: 'ax^2 + bx + c = 0 \\quad (a \\neq 0)',
+        description: { hi: 'जहाँ a, b, c वास्तविक संख्याएँ हैं।', en: 'where a, b, c are real numbers.' },
+      },
+      {
+        title: { hi: 'द्विघाती सूत्र (श्रीधराचार्य सूत्र)', en: 'Quadratic Formula (Sridharacharya Formula)' },
+        latex: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}',
+        description: { hi: 'मूल ज्ञात करने के लिए सूत्र।', en: 'Formula used to find the roots of the equation.' },
+      },
+      {
+        title: { hi: 'विविक्तकर (Discriminant)', en: 'Discriminant' },
+        latex: 'D = b^2 - 4ac',
+        description: { hi: 'मूलों की प्रकृति निर्धारित करने के लिए।', en: 'Determines the nature of roots.' },
+      },
+    ],
+    practiceQuestions: [
+      {
+        question: {
+          hi: 'जाँच कीजिए कि क्या $(x + 1)^2 = 2(x - 3)$ एक द्विघात समीकरण है?',
+          en: 'Check whether $(x + 1)^2 = 2(x - 3)$ is a quadratic equation.',
+        },
+        hint: {
+          hi: '$(x+1)^2$ का प्रसार करें और सभी पदों को बाईं ओर लाएँ।',
+          en: 'Expand $(x+1)^2$ and move all terms to the left hand side.',
+        },
+        solution: {
+          hi: '<p>LHS $= (x + 1)^2 = x^2 + 2x + 1$</p><p>RHS $= 2(x - 3) = 2x - 6$</p><p>समीकरण: $x^2 + 2x + 1 = 2x - 6 \\implies x^2 + 7 = 0$</p><p>यह $ax^2 + bx + c = 0$ (जहाँ $a=1, b=0, c=7$) के रूप का है। अतः यह <strong>द्विघात समीकरण है</strong>।</p>',
+          en: '<p>LHS $= (x + 1)^2 = x^2 + 2x + 1$</p><p>RHS $= 2(x - 3) = 2x - 6$</p><p>Equating: $x^2 + 2x + 1 = 2x - 6 \\implies x^2 + 7 = 0$</p><p>This is of the form $ax^2 + bx + c = 0$ (with $a=1, b=0, c=7$). Hence it is a <strong>quadratic equation</strong>.</p>',
+        },
+        difficulty: 'easy',
+      },
+      {
+        question: {
+          hi: 'द्विघात समीकरण $2x^2 - 5x + 3 = 0$ का विविक्तकर (Discriminant) ज्ञात कीजिए।',
+          en: 'Find the discriminant of the quadratic equation $2x^2 - 5x + 3 = 0$.',
+        },
+        solution: {
+          hi: '<p>$a = 2, b = -5, c = 3$</p><p>$D = b^2 - 4ac = (-5)^2 - 4(2)(3) = 25 - 24 = 1$</p><p>चूँकि $D > 0$, अतः दो भिन्न वास्तविक मूल होंगे।</p>',
+          en: '<p>$a = 2, b = -5, c = 3$</p><p>$D = b^2 - 4ac = (-5)^2 - 4(2)(3) = 25 - 24 = 1$</p><p>Since $D > 0$, the equation has two distinct real roots.</p>',
+        },
+        difficulty: 'medium',
+      },
+    ],
+    externalLinks: [
+      {
+        title: 'NCERT Official Textbook PDF (Class 10 Chapter 4)',
+        url: 'https://ncert.nic.in/textbook.php?jemh1=4-14',
+        description: 'Official NCERT portal Class 10 Mathematics Chapter 4 link.',
+      },
+      {
+        title: 'Geogebra Interactive Quadratic Graph Visualizer',
+        url: 'https://www.geogebra.org/m/mhygzs7x',
+        description: 'Interact with parabola roots and coefficients in real time.',
+      },
+    ],
+  },
+  {
+    classNumber: 10,
+    chapterNumber: 4,
+    number: 2,
+    slug: 'solution-by-factorisation',
+    title: {
+      hi: 'गुणनखंडन द्वारा द्विघात समीकरण का हल',
+      en: 'Solution of Quadratic Equations by Factorisation',
+    },
+    shortDescription: {
+      hi: 'मध्य पद को विभक्त करके (Splitting the middle term) द्विघात समीकरण के मूल ज्ञात करना।',
+      en: 'Finding roots of a quadratic equation by splitting the middle term.',
+    },
+    difficulty: 'medium',
+    estimatedTime: '35 min',
+    featured: false,
+    videos: [
+      {
+        title: {
+          hi: 'गुणनखंडन विधि से हल कैसे करें (Step-by-Step)',
+          en: 'Solving Quadratic Equations by Factorisation (Step-by-Step)',
+        },
+        source: 'youtube',
+        url: 'https://www.youtube.com/watch?v=SDe-1lGeS0U',
+        duration: '18:10',
+        lessonNumber: 1,
+        teacherName: 'Nitish Sir',
+      },
+    ],
+    notes: {
+      hi: `<h3>गुणनखंडन विधि (Splitting the Middle Term)</h3><p>समीकरण $ax^2 + bx + c = 0$ के लिए:</p><ol><li>दो संख्याएँ $p$ और $q$ ऐसे खोजें जिनका योग $p + q = b$ हो और गुणनफल $p \\times q = ac$ हो।</li><li>मध्य पद $bx$ को $px + qx$ के रूप में लिखें।</li><li>पदों का समूह बनाकर उभयनिष्ठ (common) गुणनखंड बाहर निकालें।</li><li>प्रत्येक रैखिक गुणनखंड को शून्य के बराबर रखकर $x$ के मान (मूल) ज्ञात करें।</li></ol>`,
+      en: `<h3>Method of Factorisation</h3><p>For the equation $ax^2 + bx + c = 0$:</p><ol><li>Find two numbers $p$ and $q$ such that $p + q = b$ and $p \\times q = ac$.</li><li>Split the middle term $bx$ as $px + qx$.</li><li>Factor by grouping terms.</li><li>Set each linear factor to zero to obtain the roots.</li></ol>`,
+    },
+    formulas: [
+      {
+        title: { hi: 'मध्य पद विभाजन नियम', en: 'Middle Term Splitting Rule' },
+        latex: 'p + q = b, \\quad p \\cdot q = a \\cdot c',
+        description: { hi: 'मध्य पद को दो भागों में विभक्त करने की शर्त।', en: 'Condition for splitting the linear term coefficient.' },
+      },
+    ],
+    practiceQuestions: [
+      {
+        question: {
+          hi: 'गुणनखंडन विधि द्वारा समीकरण $x^2 - 3x - 10 = 0$ के मूल ज्ञात कीजिए।',
+          en: 'Find the roots of the equation $x^2 - 3x - 10 = 0$ by factorisation.',
+        },
+        solution: {
+          hi: '<p>$x^2 - 5x + 2x - 10 = 0$</p><p>$x(x - 5) + 2(x - 5) = 0$</p><p>$(x - 5)(x + 2) = 0$</p><p>$\\implies x = 5$ अथवा $x = -2$</p>',
+          en: '<p>$x^2 - 5x + 2x - 10 = 0$</p><p>$x(x - 5) + 2(x - 5) = 0$</p><p>$(x - 5)(x + 2) = 0$</p><p>$\\implies x = 5$ or $x = -2$</p>',
+        },
+        difficulty: 'medium',
+      },
+    ],
+  },
+  {
+    classNumber: 10,
+    chapterNumber: 5,
+    number: 1,
+    slug: 'arithmetic-progressions-introduction',
+    title: {
+      hi: 'समांतर श्रेढ़ी का परिचय एवं n-वाँ पद',
+      en: 'Arithmetic Progression: Introduction & nth Term',
+    },
+    shortDescription: {
+      hi: 'प्रथम पद (a), सार्व अंतर (d), और समांतर श्रेढ़ी का व्यापक पद (an = a + (n-1)d)।',
+      en: 'First term (a), common difference (d), and the general nth term (an = a + (n-1)d).',
+    },
+    difficulty: 'easy',
+    estimatedTime: '30 min',
+    featured: true,
+    videos: [
+      {
+        title: {
+          hi: 'समांतर श्रेढ़ी (AP) - पूरा परिचय व सूत्र',
+          en: 'Arithmetic Progressions (AP) - Full Concept & Formulas',
+        },
+        source: 'youtube',
+        url: 'https://www.youtube.com/watch?v=1xNKG2C_B3U',
+        duration: '16:40',
+        lessonNumber: 1,
+        teacherName: 'Nitish Sir',
+      },
+    ],
+    notes: {
+      hi: `<h3>समांतर श्रेढ़ी (Arithmetic Progression - AP)</h3><p>संख्याओं की एक ऐसी सूची जिसमें प्रत्येक पद अपने पिछले पद में एक निश्चित संख्या जोड़ने पर प्राप्त होता है, <strong>समांतर श्रेढ़ी (AP)</strong> कहलाती है।</p><p>निश्चित संख्या को <strong>सार्व अंतर (Common Difference, $d$)</strong> कहा जाता है। सार्व अंतर धनात्मक, ऋणात्मक या शून्य हो सकता है।</p>`,
+      en: `<h3>Arithmetic Progression (AP)</h3><p>An arithmetic progression is a sequence of numbers such that the difference between consecutive terms is constant. This constant difference is called the <strong>common difference ($d$)</strong>.</p>`,
+    },
+    formulas: [
+      {
+        title: { hi: 'n-वाँ पद (General nth Term)', en: 'nth Term Formula' },
+        latex: 'a_n = a + (n - 1)d',
+        description: { hi: 'जहाँ a प्रथम पद, d सार्व अंतर और n पदों की संख्या है।', en: 'where a is first term, d is common difference, and n is number of terms.' },
+      },
+      {
+        title: { hi: 'प्रथम n पदों का योग (Sum of first n terms)', en: 'Sum of First n Terms' },
+        latex: 'S_n = \\frac{n}{2}\\left[2a + (n - 1)d\\right] = \\frac{n}{2}(a + l)',
+        description: { hi: 'जहाँ l = अंतिम पद (last term) है।', en: 'where l is the last term.' },
+      },
+    ],
+    practiceQuestions: [
+      {
+        question: {
+          hi: 'AP: $2, 7, 12, \\dots$ का $10$वाँ पद ज्ञात कीजिए।',
+          en: 'Find the 10th term of the AP: $2, 7, 12, \\dots$',
+        },
+        solution: {
+          hi: '<p>$a = 2, d = 7 - 2 = 5, n = 10$</p><p>$a_{10} = a + 9d = 2 + 9(5) = 2 + 45 = 47$</p>',
+          en: '<p>$a = 2, d = 7 - 2 = 5, n = 10$</p><p>$a_{10} = a + 9d = 2 + 9(5) = 2 + 45 = 47$</p>',
+        },
+        difficulty: 'easy',
+      },
+    ],
+  },
+];
+
+export const resources = [
+  {
+    classNumber: 10,
+    chapterNumber: 4,
+    title: {
+      hi: 'कक्षा 10 गणित: द्विघात समीकरण - संपूर्ण हस्तलिखित नोट्स (PDF)',
+      en: 'Class 10 Maths: Quadratic Equations - Complete Handwritten Notes (PDF)',
+    },
+    description: {
+      hi: 'द्विघात समीकरण के सभी नियम, मानक रूप, गुणनखंडन और द्विघाती सूत्र के विस्तृत उदाहरण सहित नोट्स।',
+      en: 'Complete handwritten revision notes with solved examples for Quadratic Equations.',
+    },
+    resourceType: 'notes',
+    fileUrl: 'https://ncert.nic.in/textbook/pdf/jemh104.pdf',
+    fileName: 'Class_10_Maths_Ch4_Quadratic_Equations_Notes.pdf',
+    fileSize: 2450000,
+    mimeType: 'application/pdf',
+    downloadAllowed: true,
+    featured: true,
+  },
+  {
+    classNumber: 10,
+    chapterNumber: 4,
+    title: {
+      hi: 'द्विघात समीकरण सूत्र और विविक्तकर चार्ट (Formula Sheet)',
+      en: 'Quadratic Equations Formula Sheet & Discriminant Chart',
+    },
+    description: {
+      hi: 'परीक्षा पूर्व त्वरित दोहराव के लिए 1-पेज का फॉर्मूला चीट शीट।',
+      en: '1-page formula sheet with discriminant cases and nature of roots chart.',
+    },
+    resourceType: 'formula_sheet',
+    fileUrl: 'https://ncert.nic.in/textbook/pdf/jemh104.pdf',
+    fileName: 'Class10_Ch4_Formula_Sheet.pdf',
+    fileSize: 680000,
+    mimeType: 'application/pdf',
+    downloadAllowed: true,
+    featured: true,
+  },
+  {
+    classNumber: 10,
+    chapterNumber: 4,
+    title: {
+      hi: 'द्विघात समीकरण अभ्यास कार्यपत्रक (Practice Worksheet 01)',
+      en: 'Quadratic Equations Practice Worksheet 01',
+    },
+    description: {
+      hi: '20 महत्वपूर्ण प्रश्नों का अभ्यास सेट (बोर्ड परीक्षा स्पेशल)।',
+      en: '20 high-yield practice questions with answer key for board preparation.',
+    },
+    resourceType: 'worksheet',
+    fileUrl: 'https://ncert.nic.in/textbook/pdf/jemh104.pdf',
+    fileName: 'Class10_Ch4_Worksheet_01.pdf',
+    fileSize: 1120000,
+    mimeType: 'application/pdf',
+    downloadAllowed: true,
+  },
+  {
+    classNumber: 10,
+    chapterNumber: 5,
+    title: {
+      hi: 'समांतर श्रेढ़ियाँ (AP) - सूत्र एवं महत्वपूर्ण प्रश्न संग्रह',
+      en: 'Arithmetic Progressions (AP) - Formula Sheet & Important Questions',
+    },
+    description: {
+      hi: 'n-वें पद और प्रथम n पदों के योग के सभी सूत्र एवं महत्वपूर्ण उदाहरण।',
+      en: 'Complete formula sheet and solved standard questions on Arithmetic Progressions.',
+    },
+    resourceType: 'formula_sheet',
+    fileUrl: 'https://ncert.nic.in/textbook/pdf/jemh105.pdf',
+    fileName: 'Class10_Ch5_AP_Formula_Sheet.pdf',
+    fileSize: 850000,
+    mimeType: 'application/pdf',
+    downloadAllowed: true,
+    featured: true,
+  },
+  {
+    classNumber: 10,
+    chapterNumber: 5,
+    title: {
+      hi: 'समांतर श्रेढ़ी अभ्यास कार्यपत्रक (AP Practice Worksheet)',
+      en: 'Arithmetic Progressions Practice Worksheet',
+    },
+    description: {
+      hi: 'कक्षा 10 समांतर श्रेढ़ी के अभ्यास प्रश्न और गृहकार्य पत्रक।',
+      en: 'Practice worksheet for Class 10 AP with word problems.',
+    },
+    resourceType: 'worksheet',
+    fileUrl: 'https://ncert.nic.in/textbook/pdf/jemh105.pdf',
+    fileName: 'Class10_Ch5_Worksheet.pdf',
+    fileSize: 920000,
+    mimeType: 'application/pdf',
+    downloadAllowed: true,
+  },
+  {
+    classNumber: 10,
+    title: {
+      hi: 'CBSE कक्षा 10 गणित 2024-25 आधिकारिक सैंपल प्रश्न पत्र एवं मार्किंग स्कीम',
+      en: 'CBSE Class 10 Mathematics 2024-25 Official Sample Question Paper & Marking Scheme',
+    },
+    description: {
+      hi: 'बोर्ड परीक्षा के नवीनतम पैटर्न पर आधारित ऑफिशियल सैंपल पेपर।',
+      en: 'Official sample question paper and marking scheme for Class 10 Board exam.',
+    },
+    resourceType: 'sample_paper',
+    fileUrl: 'https://cbseacademic.nic.in/web_material/SQP/ClassX_2024_25/MathsStandard-SQP.pdf',
+    fileName: 'CBSE_Class10_Maths_Sample_Paper_2024_25.pdf',
+    fileSize: 1850000,
+    mimeType: 'application/pdf',
+    downloadAllowed: true,
+    featured: true,
+  },
+];
+
+export const books = [
+  {
+    title: 'NCERT Mathematics Textbook for Class 10',
+    author: 'NCERT Editorial Board',
+    publisher: 'NCERT (National Council of Educational Research and Training)',
+    edition: '2024-25 Rationalised Edition',
+    classNumber: 10,
+    subjectSlug: 'maths',
+    chapterNumber: 4,
+    category: 'ncert',
+    description: {
+      hi: 'कक्षा 10 के लिए राष्ट्रीय शैक्षिक अनुसंधान और प्रशिक्षण परिषद (NCERT) द्वारा प्रकाशित आधिकारिक गणित पाठ्यपुस्तक।',
+      en: 'Official NCERT Mathematics textbook for Class 10 with latest rationalised syllabus.',
+    },
+    coverUrl: 'https://ncert.nic.in/textbook/pdf/jemh1cc.jpg',
+    purchaseUrl: 'https://www.amazon.in/s?k=NCERT+Mathematics+Class+10',
+    price: 140,
+    currency: 'INR',
+    recommendedFor: 'CBSE & State Board Exams (Must-have core textbook)',
+    featured: true,
+  },
+  {
+    title: 'Mathematics for Class 10 by R.D. Sharma',
+    author: 'Dr. R.D. Sharma',
+    publisher: 'Dhanpat Rai Publications',
+    edition: 'Latest Edition (2024-25)',
+    classNumber: 10,
+    subjectSlug: 'maths',
+    chapterNumber: 4,
+    category: 'reference',
+    description: {
+      hi: 'बोर्ड परीक्षा और प्रतियोगी परीक्षाओं की गहन तैयारी के लिए सर्वाधिक लोकप्रिय एवं विस्तृत संदर्भ पुस्तक।',
+      en: 'The most comprehensive reference book for CBSE Class 10 Mathematics with thousands of graded practice problems.',
+    },
+    coverUrl: 'https://m.media-amazon.com/images/I/81+XN5zQZmL._AC_UF1000,1000_QL80_.jpg',
+    purchaseUrl: 'https://www.amazon.in/s?k=RD+Sharma+Class+10+Mathematics',
+    price: 695,
+    currency: 'INR',
+    recommendedFor: 'In-depth concept mastery and 95%+ Board score preparation',
+    featured: true,
+  },
+  {
+    title: 'Secondary School Mathematics for Class 10 by R.S. Aggarwal',
+    author: 'R.S. Aggarwal & V. Aggarwal',
+    publisher: 'Bharati Bhawan Publishers',
+    edition: 'Revised Edition',
+    classNumber: 10,
+    subjectSlug: 'maths',
+    chapterNumber: 4,
+    category: 'practice',
+    description: {
+      hi: 'सरल भाषा और क्रमबद्ध अभ्यास प्रश्नों के लिए उत्कृष्ट गणित संदर्भ पुस्तक।',
+      en: 'Standard reference and practice book for building strong problem-solving skills.',
+    },
+    coverUrl: 'https://m.media-amazon.com/images/I/71R23+Xk3sL._AC_UF1000,1000_QL80_.jpg',
+    purchaseUrl: 'https://www.amazon.in/s?k=RS+Aggarwal+Class+10+Mathematics',
+    price: 520,
+    currency: 'INR',
+    recommendedFor: 'Systematic daily problem practice and step-by-step learning',
+    featured: false,
+  },
+  {
+    title: 'NCERT Exemplar Problems - Solutions Mathematics Class 10',
+    author: 'Arihant Experts / NCERT',
+    publisher: 'Arihant Publications',
+    edition: '2024-25 Edition',
+    classNumber: 10,
+    subjectSlug: 'maths',
+    category: 'exam_prep',
+    description: {
+      hi: 'उच्च-स्तरीय चिंतन कौशल (HOTS) और कठिन प्रश्नों के अभ्यास के लिए NCERT एग्जम्पलर।',
+      en: 'High Order Thinking Skills (HOTS) and analytical questions for CBSE Class 10 board toppers and Olympiads.',
+    },
+    coverUrl: 'https://m.media-amazon.com/images/I/71ZtqI2X5wL._AC_UF1000,1000_QL80_.jpg',
+    purchaseUrl: 'https://www.amazon.in/s?k=NCERT+Exemplar+Class+10+Maths',
+    price: 195,
+    currency: 'INR',
+    recommendedFor: 'HOTS questions, Case Study-based questions & Olympiad foundation',
+    featured: true,
+  },
+];
