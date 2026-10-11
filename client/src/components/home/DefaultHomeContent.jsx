@@ -18,8 +18,23 @@ import { Link, useNavigate } from 'react-router';
 import { MathFormula } from '@/components/content/MathFormula.jsx';
 import { SOCIAL_ICONS } from '@/components/site/SocialIcons.jsx';
 import { Button } from '@/components/ui/button';
-import { HeroSection } from './HeroSection.jsx';
 
+const SYMBOLS = [
+  { s: '∫', c: 'top-10 left-[5%] text-7xl opacity-20' },
+  { s: '∑', c: 'top-14 right-[6%] text-6xl opacity-20' },
+  { s: 'π', c: 'bottom-16 left-[18%] text-7xl opacity-25' },
+  { s: '√x', c: 'top-1/3 right-[25%] text-5xl opacity-20' },
+  { s: '△', c: 'bottom-10 right-[10%] text-6xl opacity-20' },
+  { s: 'x²', c: 'top-1/2 left-[3%] text-5xl opacity-15' },
+];
+
+const POPULAR_SEARCHES = [
+  'कक्षा 10 प्रश्नावली 5.2',
+  'समांतर श्रेढ़ी',
+  'त्रिकोणमिति',
+  'द्विघात समीकरण',
+  'प्रमेय 6.1 (थेल्स प्रमेय)',
+];
 
 const CLASSES_DATA = [
   {
@@ -138,12 +153,100 @@ const FAQS = [
 ];
 
 export function DefaultHomeContent() {
+  const navigate = useNavigate();
+  const [searchVal, setSearchVal] = useState('');
   const [openFaq, setOpenFaq] = useState(0);
+
+  const handleSearch = (e) => {
+    e?.preventDefault();
+    if (!searchVal.trim()) return;
+    navigate(`/search?q=${encodeURIComponent(searchVal.trim())}`);
+  };
 
   return (
     <div className="relative overflow-hidden">
-      {/* ─── HERO SECTION (Modern Interactive Hero with AI Ganit Mitra) ─── */}
-      <HeroSection section={{}} />
+      {/* ─── HERO SECTION ─── */}
+      <section className="relative border-b bg-gradient-to-b from-background via-muted/30 to-background py-16 sm:py-24">
+        {/* Floating math symbols background */}
+        <div className="pointer-events-none absolute inset-0 select-none overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-40 -left-40 size-96 rounded-full bg-brand/15 blur-3xl" />
+          <div className="absolute top-1/3 -right-32 size-96 rounded-full bg-amber-500/15 blur-3xl" />
+          {SYMBOLS.map((item, i) => (
+            <span key={i} className={`absolute font-heading font-black text-foreground ${item.c}`}>
+              {item.s}
+            </span>
+          ))}
+        </div>
+
+        <div className="container-page relative z-10 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-1.5 text-xs font-bold text-brand backdrop-blur-md">
+            <Sparkles className="size-3.5 animate-pulse" />
+            <span>NCERT 2024–25 • हिंदी & English Medium</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="mx-auto mt-6 max-w-4xl font-heading text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.15]">
+            गणित में <span className="bg-gradient-to-r from-brand to-amber-500 bg-clip-text text-transparent">100/100</span> की तैयारी — Passion Maths Study
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Class 6 से 12 तक के सभी NCERT अध्यायों और प्रश्नावलियों के Step-by-Step Solutions, Diagrams, Notes और Video Lectures — बिल्कुल आसान भाषा में।
+          </p>
+
+          {/* Search Box */}
+          <form onSubmit={handleSearch} className="mx-auto mt-8 max-w-xl">
+            <div className="relative flex items-center rounded-2xl border-2 border-border/80 bg-card p-1.5 shadow-lg transition-all focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/10">
+              <Search className="ml-3 size-5 text-muted-foreground shrink-0" />
+              <input
+                type="text"
+                value={searchVal}
+                onChange={(e) => setSearchVal(e.target.value)}
+                placeholder="खोजें: कक्षा 10 प्रश्नावली 5.2, समांतर श्रेढ़ी, त्रिकोणमिति…"
+                className="w-full bg-transparent px-3 py-2 text-sm sm:text-base outline-none placeholder:text-muted-foreground/60"
+              />
+              <Button type="submit" size="default" className="rounded-xl px-5 font-bold shadow-sm shrink-0">
+                हल खोजें
+              </Button>
+            </div>
+
+            {/* Popular Searches */}
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <span className="font-semibold text-foreground/80">लोकप्रिय:</span>
+              {POPULAR_SEARCHES.map((term, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => navigate(`/search?q=${encodeURIComponent(term)}`)}
+                  className="rounded-lg border border-border/60 bg-card/60 px-2 py-0.5 text-xs transition hover:border-brand/40 hover:text-brand"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </form>
+
+          {/* Direct CTA Buttons */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button asChild size="lg" className="rounded-xl font-bold px-6 shadow-md shadow-brand/20">
+              <a href="#classes">
+                <BookOpen className="size-4 mr-1.5" /> अपनी कक्षा चुनें
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="rounded-xl font-bold px-6 border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition">
+              <a href="https://whatsapp.com/channel/0029Vb8ePtV6xCSKZnaBfu0N" target="_blank" rel="noopener noreferrer">
+                <SOCIAL_ICONS.whatsapp className="size-4 mr-1.5" /> WhatsApp Channel से जुड़ें
+              </a>
+            </Button>
+            <Button asChild size="lg" variant="ghost" className="rounded-xl font-semibold text-[#FF0000] hover:bg-[#FF0000]/10 transition">
+              <a href="https://youtube.com/@passionmathsstudy?si=tc1BLKqOF3RTZnnc" target="_blank" rel="noopener noreferrer">
+                <SOCIAL_ICONS.youtube className="size-4 mr-1.5" /> YouTube लेक्चर्स
+              </a>
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* ─── WHATSAPP & COMMUNITY BANNER CARD ─── */}
       <section className="container-page -mt-8 relative z-20">
