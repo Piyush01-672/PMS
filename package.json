@@ -2,7 +2,12 @@
   "name": "passion-maths-study",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Passion Maths Study (PMS) — database-driven NCERT Mathematics platform for Class 6–12 with an admin CMS",
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "scripts": {
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
     "dev": "concurrently -n api,web -c yellow,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
