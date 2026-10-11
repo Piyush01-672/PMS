@@ -63,19 +63,13 @@ npm run install:all
 
 Sign in with the seed owner account, then go to **My Account & 2FA** and change the password and turn on two-factor authentication.
 
-Run the API tests (uses a temporary `pms_test_*` database):
+Run the API tests (uses an isolated test database):
 
 ```bash
 npm test
+# Or inside server:
+cd server && npm test
 ```
-
-Run the end-to-end browser tests. They use the Chrome installed on the computer (set `PW_CHANNEL=msedge` to use Edge instead), build the site, reset a separate `pms_e2e` database, and test the admin panel and student site together:
-
-```bash
-npm run test:e2e
-```
-
-Failure screenshots, traces and an HTML report are saved in `e2e-results/`.
 
 ## 3. How content is organised
 

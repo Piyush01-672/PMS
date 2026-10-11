@@ -18,12 +18,9 @@
     "seed": "npm run seed --prefix server",
     "create-admin": "npm run create-admin --prefix server",
     "backup": "npm run backup --prefix server",
-    "test": "npm test --prefix server",
-    "test:e2e": "playwright test",
-    "test:all": "npm test && playwright test"
+    "test": "npm test --prefix server"
   },
   "devDependencies": {
-    "@playwright/test": "^1.63.0",
     "concurrently": "^10.0.5"
   },
   "overrides": {
