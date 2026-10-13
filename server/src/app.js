@@ -46,7 +46,34 @@ export function createApp() {
     }),
   );
   app.use(compression());
-  app.use(cors({ origin: env.clientOrigins, credentials: true, methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }));
+  const isAllowedOrigin = (origin) => {
+    if (!origin) return true;
+    const allowed = new Set([
+      ...env.clientOrigins,
+      ...(env.PUBLIC_SITE_URL ? [new URL(env.PUBLIC_SITE_URL).origin] : []),
+    ]);
+    if (allowed.has(origin)) return true;
+    try {
+      const parsed = new URL(origin);
+      if (parsed.hostname.endsWith('.vercel.app') || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+        return true;
+      }
+    } catch {
+      /* ignore invalid URL */
+    }
+    return false;
+  };
+
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (isAllowedOrigin(origin)) return callback(null, true);
+        return callback(null, false);
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    }),
+  );
   if (!env.isTest) app.use(morgan(env.isProd ? 'combined' : 'dev'));
 
   app.use(express.json({ limit: '2mb' }));

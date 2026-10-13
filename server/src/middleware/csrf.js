@@ -13,17 +13,33 @@ const EXEMPT_PATHS = new Set([
 
 export const csrfTokenFor = (sid) => hmac(`csrf:${sid}`);
 
-function allowedOrigin(origin) {
+function allowedOrigin(req, origin) {
   if (!origin) return true;
-  const allowed = new Set([...env.clientOrigins, new URL(env.PUBLIC_SITE_URL).origin]);
-  return allowed.has(origin);
+  const host = req.get('x-forwarded-host') || req.get('host');
+  if (host && (origin === `https://${host}` || origin === `http://${host}`)) {
+    return true;
+  }
+  const allowed = new Set([
+    ...env.clientOrigins,
+    ...(env.PUBLIC_SITE_URL ? [new URL(env.PUBLIC_SITE_URL).origin] : []),
+  ]);
+  if (allowed.has(origin)) return true;
+  try {
+    const parsed = new URL(origin);
+    if (parsed.hostname.endsWith('.vercel.app') || parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      return true;
+    }
+  } catch {
+    /* ignore invalid URL */
+  }
+  return false;
 }
 
 // Signed double-submit token bound to the admin session + strict Origin check on state-changing requests.
 export function csrfProtection(req, res, next) {
   if (SAFE_METHODS.has(req.method)) return next();
 
-  if (!allowedOrigin(req.get('origin'))) return next(new ApiError(403, 'Cross-origin request blocked'));
+  if (!allowedOrigin(req, req.get('origin'))) return next(new ApiError(403, 'Cross-origin request blocked'));
   const normalizedPath = req.originalUrl?.split('?')[0] || req.path;
   if (EXEMPT_PATHS.has(req.path) || EXEMPT_PATHS.has(normalizedPath)) return next();
 
