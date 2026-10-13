@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Triangle ABC with angle A 60 degrees and angle B 70 degrees">
+  <rect width="480" height="320" fill="#ffffff" />
+  <polygon points="240,40 60,270 420,270" fill="#eef2ff" stroke="#1e1b4b" stroke-width="3" stroke-linejoin="round" />
+  <path d="M 222,63 A 30 30 0 0 0 258,63" fill="none" stroke="#b83a2e" stroke-width="3" />
+  <path d="M 100,270 A 40 40 0 0 0 85,238" fill="none" stroke="#b83a2e" stroke-width="3" />
+  <path d="M 378,238 A 40 40 0 0 0 362,270" fill="none" stroke="#4f46e5" stroke-width="3" stroke-dasharray="6 4" />
+  <text x="240" y="28" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" text-anchor="middle" fill="#1e1b4b">A</text>
+  <text x="42" y="292" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e1b4b">B</text>
+  <text x="426" y="292" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1e1b4b">C</text>
+  <text x="240" y="98" font-family="Inter, Arial, sans-serif" font-size="18" text-anchor="middle" fill="#b83a2e">60°</text>
+  <text x="118" y="252" font-family="Inter, Arial, sans-serif" font-size="18" fill="#b83a2e">70°</text>
+  <text x="330" y="252" font-family="Inter, Arial, sans-serif" font-size="18" fill="#4f46e5">?</text>
+</svg>

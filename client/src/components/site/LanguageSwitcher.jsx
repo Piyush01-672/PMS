@@ -13,7 +13,7 @@ export function LanguageSwitcher({ className }) {
   const { lang, setLang } = useLang();
   const layoutId = useId();
   return (
-    <div role="group" aria-label="Language / भाषा" className={cn('relative flex items-center rounded-full bg-muted p-1 text-xs font-bold', className)}>
+    <div role="group" aria-label="Language / भाषा" className={cn('relative flex items-center rounded-full bg-muted p-0.5 sm:p-1 text-xs font-bold', className)}>
       {OPTIONS.map((option) => {
         const active = lang === option.value;
         return (
@@ -23,7 +23,7 @@ export function LanguageSwitcher({ className }) {
             aria-pressed={active}
             aria-label={option.aria}
             onClick={() => setLang(option.value)}
-            className={cn('relative z-10 rounded-full px-3 py-1.5 transition-colors', active ? 'text-brand' : 'text-muted-foreground hover:text-foreground')}
+            className={cn('relative z-10 rounded-full px-2 py-1 xl:px-3 xl:py-1.5 transition-colors', active ? 'text-brand' : 'text-muted-foreground hover:text-foreground')}
           >
             {active && (
               <motion.span

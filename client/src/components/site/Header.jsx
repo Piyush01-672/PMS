@@ -44,7 +44,7 @@ function ClassesMenu({ label }) {
   const classes = [...rawClasses].sort((a, b) => b.number - a.number);
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+      <NavigationMenuTrigger className="h-9 bg-transparent px-2 xl:px-3 text-xs xl:text-sm font-semibold text-foreground/75 hover:text-brand whitespace-nowrap">
         {label || term('class')}
       </NavigationMenuTrigger>
       <NavigationMenuContent>
@@ -84,7 +84,7 @@ function StudyMaterialsMenu() {
 
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+      <NavigationMenuTrigger className="h-9 bg-transparent px-2 xl:px-3 text-xs xl:text-sm font-semibold text-foreground/75 hover:text-brand whitespace-nowrap">
         Study Materials
       </NavigationMenuTrigger>
       <NavigationMenuContent>
@@ -114,7 +114,7 @@ function ReferenceSolutionsMenu() {
 
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+      <NavigationMenuTrigger className="h-9 bg-transparent px-2 xl:px-3 text-xs xl:text-sm font-semibold text-foreground/75 hover:text-brand whitespace-nowrap">
         Reference Solutions
       </NavigationMenuTrigger>
       <NavigationMenuContent>
@@ -154,7 +154,7 @@ function MoreMenu() {
 
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger className="h-9 bg-transparent px-3 text-sm font-semibold text-foreground/75 hover:text-brand">
+      <NavigationMenuTrigger className="h-9 bg-transparent px-2 xl:px-3 text-xs xl:text-sm font-semibold text-foreground/75 hover:text-brand whitespace-nowrap">
         More
       </NavigationMenuTrigger>
       <NavigationMenuContent>
@@ -202,17 +202,17 @@ export function Header() {
   return (
     <header
       className={cn(
-        'z-40 border-b bg-background/88 backdrop-blur-xl supports-[backdrop-filter]:bg-background/75',
+        'z-40 border-b bg-background/90 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-xs transition-shadow',
         header.sticky !== false && 'sticky top-0',
       )}
     >
-      <div className="container-page flex h-[var(--header-height)] items-center gap-3">
+      <div className="container-page flex h-[var(--header-height)] items-center gap-2 sm:gap-3">
         <MobileMenu />
-        <Logo className="mr-auto lg:mr-2 sm:hidden" showText={false} />
-        <Logo className="mr-auto lg:mr-2 hidden sm:flex" />
+        <Logo className="shrink-0 mr-auto sm:hidden" showText={false} />
+        <Logo className="shrink-0 hidden sm:flex mr-2 xl:mr-4" />
 
-        <NavigationMenu viewport={false} className="hidden lg:flex" aria-label="Main">
-          <NavigationMenuList className="gap-0.5">
+        <NavigationMenu viewport={false} className="hidden lg:flex shrink-0" aria-label="Main">
+          <NavigationMenuList className="gap-0.5 xl:gap-1">
             <ClassesMenu label={term('class')} />
             <StudyMaterialsMenu />
             <ReferenceSolutionsMenu />
@@ -220,11 +220,11 @@ export function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="ml-auto flex items-center gap-2">
-          {header.showLanguageSwitcher !== false && <LanguageSwitcher />}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+          {header.showLanguageSwitcher !== false && <LanguageSwitcher className="hidden sm:flex" />}
           {header.showSearch !== false && (
             <>
-              <SearchBar className="hidden w-56 md:block xl:w-72" />
+              <SearchBar className="hidden md:block w-36 lg:w-44 xl:w-64 transition-all focus-within:w-56 xl:focus-within:w-72" />
               <MobileSearch />
             </>
           )}

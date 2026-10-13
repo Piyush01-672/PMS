@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340" width="520" height="340" role="img" aria-label="Graph of the arithmetic progression a_n = 5n - 2">
+  <rect width="520" height="340" fill="#ffffff" />
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="60" y1="60" x2="490" y2="60" /><line x1="60" y1="120" x2="490" y2="120" />
+    <line x1="60" y1="180" x2="490" y2="180" /><line x1="60" y1="240" x2="490" y2="240" />
+  </g>
+  <line x1="60" y1="300" x2="490" y2="300" stroke="#1e1b4b" stroke-width="2" />
+  <line x1="60" y1="300" x2="60" y2="30" stroke="#1e1b4b" stroke-width="2" />
+  <line x1="84" y1="288" x2="450" y2="48" stroke="#4f46e5" stroke-width="2" stroke-dasharray="6 5" />
+  <g fill="#b83a2e">
+    <circle cx="84" cy="288" r="6" /><circle cx="130" cy="258" r="6" /><circle cx="176" cy="228" r="6" />
+    <circle cx="222" cy="198" r="6" /><circle cx="450" cy="48" r="7" />
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-size="14" fill="#334155">
+    <text x="78" y="320">1</text><text x="124" y="320">2</text><text x="170" y="320">3</text><text x="216" y="320">4</text>
+    <text x="436" y="320">16</text><text x="478" y="322" font-weight="700">n</text>
+    <text x="20" y="40" font-weight="700">aₙ</text>
+    <text x="96" y="282">3</text><text x="142" y="252">8</text><text x="188" y="222">13</text><text x="234" y="192">18</text>
+    <text x="392" y="42" font-weight="700" fill="#b83a2e">(16, 78)</text>
+  </g>
+</svg>
