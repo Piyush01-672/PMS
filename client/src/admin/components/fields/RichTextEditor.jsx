@@ -27,7 +27,7 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -37,6 +37,115 @@ import { RichContent } from '@/components/content/RichContent.jsx';
 import { cn } from '@/lib/utils';
 import { MediaPicker } from '../media/MediaPicker.jsx';
 import { FormulaInput } from './FormulaInput.jsx';
+
+const QUICK_MATH_SNIPPETS = [
+  { label: 'Fraction', value: '\\frac{a}{b}' },
+  { label: 'Equation', value: 'x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}' },
+  { label: 'Square root', value: '\\sqrt{x + 1}' },
+  { label: 'Exponent', value: 'x^{2}' },
+  { label: 'Subscript', value: 'x_{n}' },
+  { label: 'Matrix', value: '\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}' },
+  { label: 'System', value: '\\begin{cases} x + y = 5 \\\\ x - y = 1 \\end{cases}' },
+  { label: 'Integral', value: '\\int_{a}^{b} f(x)\\,dx' },
+];
+
+function escapeMathAttribute(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
+
+function mathMarkup(latex, displayMode = false) {
+  const value = String(latex || '').trim();
+  if (!value) return '';
+  const cls = displayMode ? 'math-display' : 'math-inline';
+  return `<span class="${cls}" data-latex="${escapeMathAttribute(value)}" data-type="math"></span>`;
+}
+
+function detectMathFromText(value) {
+  if (!value) return null;
+  const text = String(value).replace(/\u00a0/g, ' ').trim();
+  if (!text) return null;
+  const mathish = /(?:\\(?:frac|sqrt|sum|prod|int|lim|left|right|cdot|times|pi|theta)|[A-Za-z0-9]+\s*\/\s*[A-Za-z0-9]+|[=<>≤≥±÷×^_]|\\\[|\\\(|\$\$|\$)/;
+  if (/[=<>≤≥±÷×^_]/.test(text) || /\\(?:frac|sqrt|sum|prod|int|lim)/.test(text) || /\b[A-Za-z0-9]\s*\/\s*[A-Za-z0-9]/.test(text)) {
+    return text;
+  }
+  return null;
+}
+
+function mathMLToLatex(node) {
+  if (!node) return '';
+  if (node.nodeType === 3) return node.textContent || '';
+  if (node.nodeType !== 1) return '';
+
+  const tag = node.tagName?.toLowerCase?.() || '';
+  const children = Array.from(node.childNodes).map(mathMLToLatex).join('');
+
+  switch (tag) {
+    case 'mfrac': {
+      const [num, den] = Array.from(node.children);
+      return `\\frac{${mathMLToLatex(num)}}{${mathMLToLatex(den)}}`;
+    }
+    case 'msqrt': return `\\sqrt{${children}}`;
+    case 'mroot': {
+      const [radicand, index] = Array.from(node.children);
+      return `\\sqrt[${mathMLToLatex(index)}]{${mathMLToLatex(radicand)}}`;
+    }
+    case 'msup': {
+      const [base, exp] = Array.from(node.children);
+      return `${mathMLToLatex(base)}^{${mathMLToLatex(exp)}}`;
+    }
+    case 'msub': {
+      const [base, sub] = Array.from(node.children);
+      return `${mathMLToLatex(base)}_{${mathMLToLatex(sub)}}`;
+    }
+    case 'mtext': return node.textContent || '';
+    case 'mi': return node.textContent || '';
+    case 'mn': return node.textContent || '';
+    case 'mo': {
+      const value = node.textContent || '';
+      const map = { '÷': '\\div ', '×': '\\times ', '−': '-', '–': '-', '≤': '\\le ', '≥': '\\ge ', '≠': '\\ne ', '±': '\\pm ', '∠': '\\angle ', 'π': '\\pi ', '∞': '\\infty ', '∑': '\\sum ', '∫': '\\int ' };
+      return map[value] || value;
+    }
+    case 'mrow': return children;
+    case 'math': return children;
+    default: return children;
+  }
+}
+
+function extractMathFromClipboard(event) {
+  const data = event.clipboardData;
+  if (!data) return null;
+
+  const html = data.getData('text/html');
+  if (html) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const latexNode = doc.querySelector('[data-latex]');
+      if (latexNode) {
+        const latex = latexNode.getAttribute('data-latex');
+        if (latex) return { latex, display: latexNode.classList.contains('math-display') };
+      }
+
+      const mathNode = doc.querySelector('math');
+      if (mathNode) {
+        const latex = mathMLToLatex(mathNode).trim();
+        if (latex) return { latex, display: true };
+      }
+
+      const text = doc.body.textContent || '';
+      const latex = detectMathFromText(text);
+      if (latex) return { latex, display: /\\(?:frac|sqrt|sum|prod|int|lim)|\\\[|\\\(|\$\$/.test(latex) };
+    } catch {
+      // ignore clipboard parse errors and fall back to plain text below
+    }
+  }
+
+  const plain = data.getData('text/plain') || '';
+  const latex = detectMathFromText(plain);
+  if (latex) return { latex, display: false };
+
+  return null;
+}
 
 function ToolButton({ active, label, onClick, children, disabled }) {
   return (
@@ -55,15 +164,32 @@ function ToolButton({ active, label, onClick, children, disabled }) {
   );
 }
 
-function FormulaDialog({ open, onOpenChange, onInsert }) {
-  const [latex, setLatex] = useState('');
-  const [display, setDisplay] = useState(false);
+function FormulaDialog({ open, onOpenChange, onInsert, defaultLatex = '', defaultDisplay = false }) {
+  const [latex, setLatex] = useState(defaultLatex);
+  const [display, setDisplay] = useState(defaultDisplay);
+
+  useEffect(() => {
+    if (open) {
+      setLatex(defaultLatex);
+      setDisplay(defaultDisplay);
+    }
+  }, [open, defaultLatex, defaultDisplay]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Insert formula</DialogTitle>
         </DialogHeader>
+
+        <div className="mb-3 flex flex-wrap gap-2">
+          {QUICK_MATH_SNIPPETS.map((snippet) => (
+            <Button key={snippet.label} type="button" variant="outline" size="sm" onClick={() => setLatex((current) => `${current}${current ? ' ' : ''}${snippet.value}`)}>
+              {snippet.label}
+            </Button>
+          ))}
+        </div>
+
         <FormulaInput value={latex} onChange={setLatex} display={display} autoFocus rows={3} />
         <label className="flex items-center gap-2 text-sm">
           <Switch checked={display} onCheckedChange={setDisplay} /> Display on its own line (centered)
@@ -91,6 +217,8 @@ function FormulaDialog({ open, onOpenChange, onInsert }) {
 /** TipTap editor. Output is HTML (sanitized again by the server). Math is typed as $…$ / $$…$$. */
 export default function RichTextEditor({ value, onChange, placeholder, minimal = false, ariaLabel, lang }) {
   const [formulaOpen, setFormulaOpen] = useState(false);
+  const [formulaSeed, setFormulaSeed] = useState('');
+  const [formulaDisplay, setFormulaDisplay] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -115,6 +243,13 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
         'data-placeholder': placeholder || '',
         ...(lang ? { lang } : {}),
       },
+    },
+    onPaste: ({ editor, event }) => {
+      const math = extractMathFromClipboard(event);
+      if (!math) return false;
+      event.preventDefault();
+      editor.commands.insertContent(mathMarkup(math.latex, math.display), { parse: false });
+      return true;
     },
     onUpdate: ({ editor: instance }) => onChange(instance.isEmpty ? '' : instance.getHTML()),
   });
@@ -147,6 +282,22 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
 
   if (!editor) return <div className="min-h-28 rounded-lg border bg-muted/40" />;
   const chain = () => editor.chain().focus();
+
+  const openMathDialog = (seed = '', display = false) => {
+    setFormulaSeed(seed);
+    setFormulaDisplay(display);
+    setFormulaOpen(true);
+  };
+
+  const convertSelectionToMath = () => {
+    const selection = editor.state.selection;
+    const latex = detectMathFromText(editor.state.doc.textBetween(selection.from, selection.to, ' '));
+    if (!latex) {
+      openMathDialog('', false);
+      return;
+    }
+    editor.chain().deleteSelection().insertContent(mathMarkup(latex, false), { parse: false }).run();
+  };
 
   const applyLink = () => {
     if (!linkUrl.trim()) chain().extendMarkRange('link').unsetLink().run();
@@ -217,7 +368,25 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
         >
           <LinkIcon className="size-4" />
         </ToolButton>
-        <ToolButton label="Insert formula (LaTeX)" onClick={() => setFormulaOpen(true)}>
+        <ToolButton label="Insert fraction" onClick={() => openMathDialog('\\frac{a}{b}', false)}>
+          <Sigma className="size-4" />
+        </ToolButton>
+        <ToolButton label="Insert equation" onClick={() => openMathDialog('x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}', false)}>
+          <Sigma className="size-4" />
+        </ToolButton>
+        <ToolButton label="Convert to math" onClick={convertSelectionToMath}>
+          <Sigma className="size-4" />
+        </ToolButton>
+        <ToolButton label="Insert symbols" onClick={() => openMathDialog('\\times \\sqrt{x}', false)}>
+          <Sigma className="size-4" />
+        </ToolButton>
+        <ToolButton label="Preview equation" onClick={() => openMathDialog(editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' '), false)}>
+          <Eye className="size-4" />
+        </ToolButton>
+        <ToolButton label="Edit equation" onClick={() => openMathDialog(editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' '), false)}>
+          <Eye className="size-4" />
+        </ToolButton>
+        <ToolButton label="Insert formula (LaTeX)" onClick={() => openMathDialog('', false)}>
           <Sigma className="size-4" />
         </ToolButton>
         {!minimal && (
@@ -271,7 +440,18 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
         </div>
       )}
 
-      <FormulaDialog open={formulaOpen} onOpenChange={setFormulaOpen} onInsert={(text) => chain().insertContent(text).run()} />
+      <FormulaDialog
+        open={formulaOpen}
+        onOpenChange={setFormulaOpen}
+        defaultLatex={formulaSeed}
+        defaultDisplay={formulaDisplay}
+        onInsert={(text, display) => {
+          const matches = String(text || '').match(/^\$\$?(.*)\$\$?$/s);
+          const latex = (matches ? matches[1] : String(text || '')).trim();
+          if (!latex) return;
+          chain().insertContent(mathMarkup(latex, display), { parse: false }).run();
+        }}
+      />
       <MediaPicker
         open={mediaOpen}
         onOpenChange={setMediaOpen}
