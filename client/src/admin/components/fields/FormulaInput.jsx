@@ -1,3 +1,4 @@
+import { normalizeMath } from '@/components/content/mathContent.js';
 import katex from 'katex';
 import { useId, useMemo, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,7 +36,7 @@ export const LATEX_SNIPPETS = [
 export function latexError(latex) {
   if (!latex?.trim()) return null;
   try {
-    katex.renderToString(latex, { throwOnError: true, strict: 'ignore' });
+    katex.renderToString(normalizeMath(latex).latex, { throwOnError: true, strict: 'ignore' });
     return null;
   } catch (error) {
     return error.message.replace(/^KaTeX parse error: /, '');

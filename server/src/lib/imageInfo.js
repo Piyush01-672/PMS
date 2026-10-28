@@ -109,9 +109,16 @@ function oggInfo(buf) {
   return { format: 'ogv', mimeType: 'video/ogg', width: null, height: null };
 }
 
+function gifInfo(buf) {
+  if (buf.length < 14 || !['GIF87a', 'GIF89a'].includes(buf.toString('ascii', 0, 6)) || buf[buf.length - 1] !== 0x3b) return null;
+  const width = buf.readUInt16LE(6);
+  const height = buf.readUInt16LE(8);
+  return width && height ? { format: 'gif', mimeType: 'image/gif', width, height } : null;
+}
+
 export function detectImage(buffer) {
   if (!Buffer.isBuffer(buffer) || buffer.length === 0) return null;
-  return pngInfo(buffer) || jpegInfo(buffer) || webpInfo(buffer) || svgInfo(buffer);
+  return pngInfo(buffer) || jpegInfo(buffer) || webpInfo(buffer) || gifInfo(buffer) || svgInfo(buffer);
 }
 
 export function detectVideo(buffer) {
@@ -125,7 +132,7 @@ export function detectFile(buffer) {
 }
 
 export function isImage(info) {
-  return Boolean(info && ['png', 'jpg', 'webp', 'svg'].includes(info.format));
+  return Boolean(info && ['png', 'jpg', 'webp', 'gif', 'svg'].includes(info.format));
 }
 
 export function isPdf(info) {

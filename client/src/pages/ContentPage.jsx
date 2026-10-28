@@ -53,6 +53,8 @@ export default function ContentPage() {
   const query = useQuery({
     queryKey: ['resolve', path, preview, previewToken],
     queryFn: () => get('/public/resolve', { path, preview: preview ? 1 : undefined, previewToken }),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
   useHashScroll(query.isSuccess);
 

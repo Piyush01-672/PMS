@@ -1,6 +1,7 @@
+import { prepareRichHtml } from './mathContent.js';
 import DOMPurify from 'dompurify';
-import katex from 'katex';
-import renderMathInElement from 'katex/contrib/auto-render';
+import { renderMathContent } from './renderMathContent.js';
+export { KATEX_OPTIONS } from './renderMathContent.js';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -10,19 +11,10 @@ const PURIFY_CONFIG = {
   FORBID_ATTR: ['onerror', 'onload', 'onclick'],
 };
 
-const DELIMITERS = [
-  { left: '$$', right: '$$', display: true },
-  { left: '\\[', right: '\\]', display: true },
-  { left: '$', right: '$', display: false },
-  { left: '\\(', right: '\\)', display: false },
-];
-
-export const KATEX_OPTIONS = { throwOnError: false, strict: 'ignore', trust: false, output: 'htmlAndMathml' };
-
 /** Sanitized CMS HTML with KaTeX math ($…$, $$…$$ and <span data-latex>). */
 export function RichContent({ html, className, as: Tag = 'div', ...props }) {
   const ref = useRef(null);
-  const clean = useMemo(() => DOMPurify.sanitize(String(html || ''), PURIFY_CONFIG), [html]);
+  const clean = useMemo(() => DOMPurify.sanitize(prepareRichHtml(html), PURIFY_CONFIG), [html]);
 
   useLayoutEffect(() => {
     const el = ref.current;
@@ -35,14 +27,7 @@ export function RichContent({ html, className, as: Tag = 'div', ...props }) {
       table.replaceWith(wrapper);
       wrapper.appendChild(table);
     });
-    el.querySelectorAll('[data-latex]').forEach((node) => {
-      try {
-        katex.render(node.getAttribute('data-latex') || '', node, { ...KATEX_OPTIONS, displayMode: node.classList.contains('math-display') });
-      } catch {
-        /* leave source visible */
-      }
-    });
-    renderMathInElement(el, { ...KATEX_OPTIONS, delimiters: DELIMITERS, ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] });
+    renderMathContent(el);
     el.querySelectorAll('img').forEach((img) => {
       img.loading = 'lazy';
       img.decoding = 'async';

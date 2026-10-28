@@ -1,3 +1,4 @@
+import { hasRichContent } from '@/components/content/mathContent.js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const STORAGE_KEY = 'pms-lang';
@@ -35,11 +36,9 @@ export function LanguageProvider({ defaultLang = 'hi', children }) {
 
 export const useLang = () => useContext(LanguageContext);
 
-const stripTags = (html) => String(html || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
-
 export function hasContent(value) {
   if (!value) return false;
-  if (typeof value === 'string') return stripTags(value).length > 0 || /<img|<table/i.test(value);
+  if (typeof value === 'string') return hasRichContent(value);
   return ['hi', 'en', 'mixed'].some((k) => hasContent(value[k]));
 }
 

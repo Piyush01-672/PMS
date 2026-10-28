@@ -115,6 +115,12 @@ export default function ExercisePage({ data, breadcrumbs, related, path, preview
             </div>
           )}
 
+          {hasContent(exercise.notes) && (
+            <section aria-label="Exercise notes" className="rounded-2xl border bg-card p-5">
+              <RichContent html={t(exercise.notes, mode)} />
+            </section>
+          )}
+
           {questions.length > 0 && (
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 lg:hidden" aria-label={term('questions')}>
               {questions.map((q) => (

@@ -1,3 +1,4 @@
+import { normalizeMath } from './mathContent.js';
 import katex from 'katex';
 import { Check, Copy } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -7,14 +8,15 @@ import { KATEX_OPTIONS } from './RichContent.jsx';
 export function MathFormula({ latex, display = true, className }) {
   const html = useMemo(() => {
     try {
-      return katex.renderToString(latex || '', { ...KATEX_OPTIONS, displayMode: display });
+      const math = normalizeMath(latex, display);
+      return katex.renderToString(math.latex, { ...KATEX_OPTIONS, throwOnError: true, displayMode: math.display });
     } catch {
       return null;
     }
   }, [latex, display]);
 
   if (!latex) return null;
-  if (!html) return <code className="font-mono text-sm">{latex}</code>;
+  if (!html) return <span role="note" className="text-sm text-muted-foreground">Invalid formula</span>;
   return (
     <div
       className={cn(display ? 'math-scroll py-1 text-center' : 'inline', className)}

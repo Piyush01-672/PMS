@@ -32,8 +32,23 @@ export function MediaUploader({ defaultKind = 'image', onUploaded, compact = fal
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const limits = useQuery({ queryKey: ['admin', 'media', 'upload-config'], queryFn: () => get('/media/upload-config') });
 
-  const pick = (list) => setFiles(Array.from(list || []).filter((f) => /\.(png|jpe?g|webp|svg)$/i.test(f.name)));
+  const [previews, setPreviews] = useState([]);
+  useEffect(() => {
+    const next = files.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    setPreviews(next);
+    return () => next.forEach(({ url }) => URL.revokeObjectURL(url));
+  }, [files]);
+  const pick = (list) => {
+    const incoming = Array.from(list || []);
+    const valid = incoming.filter((f) => /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name));
+    if (incoming.length !== valid.length) toast.error('Choose PNG, JPG, WebP, GIF or SVG images.');
+    if (valid.length > 10) toast.error('Choose up to 10 images at a time.');
+    const sized = valid.filter((f) => !limits.data?.maxBytes || f.size <= limits.data.maxBytes);
+    if (sized.length !== valid.length) toast.error(`Each image must be ${formatBytes(limits.data.maxBytes)} or smaller.`);
+    setFiles(sized.slice(0, 10));
+  };
 
   const upload = async () => {
     if (!files.length) return;
@@ -87,16 +102,16 @@ export function MediaUploader({ defaultKind = 'image', onUploaded, compact = fal
       >
         <UploadCloud className="mb-2 size-8 text-brand" aria-hidden="true" />
         <p className="text-sm font-semibold">Drop images here or click to choose</p>
-        <p className="text-xs text-muted-foreground">PNG, JPG, WEBP or SVG · up to 10 files</p>
-        <input ref={inputRef} type="file" multiple accept=".png,.jpg,.jpeg,.webp,.svg,image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={(e) => pick(e.target.files)} />
+        <p className="text-xs text-muted-foreground">PNG, JPG, WebP, GIF or SVG · up to 10 files{limits.data && ` · ${formatBytes(limits.data.maxBytes)} per file`}</p>
+        <input ref={inputRef} type="file" multiple accept=".png,.jpg,.jpeg,.webp,.gif,.svg,image/gif,image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={(e) => pick(e.target.files)} />
       </div>
 
       {files.length > 0 && (
         <>
           <ul className="grid gap-2 sm:grid-cols-2">
-            {files.map((file) => (
+            {previews.map(({ file, url }) => (
               <li key={file.name + file.size} className="flex items-center gap-3 rounded-lg border p-2 text-sm">
-                <img src={URL.createObjectURL(file)} alt="" className="size-12 rounded bg-white object-contain" />
+                <img src={url} alt="" className="size-12 rounded bg-white object-contain" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{file.name}</span>
                   <span className="text-xs text-muted-foreground">{formatBytes(file.size)}</span>

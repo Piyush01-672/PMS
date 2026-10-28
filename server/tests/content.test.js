@@ -41,7 +41,15 @@ test('admin builds Class → Subject → अध्याय → प्रश्�
   assert.equal(chapter.body.slug, 'adhyay-5');
   ids.chapter = chapter.body._id;
 
-  const exercise = await owner.post('/api/exercises').send({ chapter: ids.chapter, number: '5.2', status: 'published' });
+  const quadratic = String.raw`\frac{3}{4}x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}`;
+  const exercise = await owner.post('/api/exercises').send({
+    chapter: ids.chapter,
+    number: '5.2',
+    description: {
+      en: `<p>Inline: $${quadratic}$</p><p><span class="math-display" data-latex="${quadratic}" data-type="math"></span></p><p>${quadratic}</p>`,
+    },
+    status: 'published',
+  });
   assert.equal(exercise.status, 201);
   assert.equal(exercise.body.slug, 'prashnavali-5-2');
   assert.equal(String(exercise.body.chapter.class._id), ids.class, 'class is derived from the parent chapter');
@@ -127,6 +135,10 @@ test('class URL redirects to its only subject; exercise page lists questions wit
 
   const exercise = await resolve(app, '/class-10/maths/adhyay-5/prashnavali-5-2');
   assert.equal(exercise.body.type, 'exercise');
+  const savedDescription = exercise.body.data.exercise.description.en;
+  assert.match(savedDescription, /Inline: \$\\frac\{3\}\{4\}x/);
+  assert.match(savedDescription, /data-latex="\\frac\{3\}\{4\}x/);
+  assert.ok(savedDescription.includes(`<p>${String.raw`\frac{3}{4}x`}`), 'preserves existing raw LaTeX in the API response');
   assert.equal(exercise.body.data.pagination.total, 1);
   assert.equal(exercise.body.data.questions[0].url, QUESTION_PATH);
   assert.equal((await resolve(app, '/class-10/maths/adhyay-99')).status, 404);

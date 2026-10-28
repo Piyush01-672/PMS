@@ -15,13 +15,13 @@ import { escapeRegex } from '../utils/slug.js';
 
 const router = express.Router();
 const KINDS = Media.schema.path('kind').enumValues;
-const ALLOWED_EXT = /\.(png|jpe?g|webp|svg|pdf)$/i;
+const ALLOWED_EXT = /\.(png|jpe?g|webp|gif|svg|pdf)$/i;
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: env.MAX_UPLOAD_MB * 1024 * 1024, files: 10, fields: 30 },
   fileFilter: (req, file, cb) => {
-    if (!ALLOWED_EXT.test(file.originalname)) return cb(new ApiError(400, `${file.originalname}: only PNG, JPG, JPEG, WEBP, SVG images and PDF files are allowed`));
+    if (!ALLOWED_EXT.test(file.originalname)) return cb(new ApiError(400, `${file.originalname}: only PNG, JPG, JPEG, WEBP, GIF, SVG images and PDF files are allowed`));
     cb(null, true);
   },
 });
@@ -44,7 +44,7 @@ function metadataFrom(body = {}) {
 
 async function prepareFile(file) {
   const info = detectFile(file.buffer);
-  if (!info) throw new ApiError(400, `${file.originalname}: file content is not a valid PNG, JPG, WEBP, SVG image or PDF`);
+  if (!info) throw new ApiError(400, `${file.originalname}: file content is not a valid PNG, JPG, WEBP, GIF, SVG image or PDF`);
   let buffer = file.buffer;
   if (isImage(info) && info.format === 'svg') {
     buffer = sanitizeSvg(file.buffer);
@@ -82,6 +82,10 @@ router.get('/', requireAuth, requirePermission('content:read'), async (req, res)
     Media.countDocuments(filter),
   ]);
   res.json({ items, total, page, limit, pages: Math.ceil(total / limit) || 1 });
+});
+
+router.get('/upload-config', requireAuth, requirePermission('media:write'), (req, res) => {
+  res.json({ maxBytes: env.MAX_UPLOAD_MB * 1024 * 1024, maxFiles: 10 });
 });
 
 router.get('/:id', requireAuth, requirePermission('content:read'), async (req, res) => {
@@ -148,6 +152,8 @@ router.put('/:id', requireAuth, requirePermission('media:write'), async (req, re
 // Replace the file but keep the same Media id, so every page using it updates automatically.
 router.post('/:id/replace', requireAuth, requirePermission('media:write'), upload.single('file'), async (req, res) => {
   const media = await loadMedia(req.params.id);
+  const embedded = (await findMediaUsage(media._id)).filter((item) => item.embedded);
+  if (embedded.length) throw new ApiError(409, 'This image is embedded in rich text. Replace it using the image button in those editors first.', { usage: embedded });
   if (!req.file) throw new ApiError(400, 'No file uploaded. Use the "file" field.');
   const { buffer, info } = await prepareFile(req.file);
   const previous = { provider: media.provider, publicId: media.publicId };

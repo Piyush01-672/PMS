@@ -102,7 +102,7 @@ function PracticeQuestionItem({ q, index }) {
             </button>
             {openHint && (
               <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
-                <p>{t(q.hint)}</p>
+                <RichContent html={t(q.hint)} />
               </div>
             )}
           </div>
@@ -121,9 +121,10 @@ function PracticeQuestionItem({ q, index }) {
           </Button>
 
           {hasContent(q.answer) && !openSolution && (
-            <span className="text-xs text-muted-foreground">
-              <strong className="text-foreground">Answer:</strong> {t(q.answer)}
-            </span>
+            <div className="text-xs text-muted-foreground">
+              <strong className="text-foreground">Answer:</strong>
+              <RichContent html={t(q.answer)} className="inline text-xs text-muted-foreground" />
+            </div>
           )}
         </div>
 
@@ -133,7 +134,8 @@ function PracticeQuestionItem({ q, index }) {
             <p className="mb-2 text-xs font-extrabold tracking-wider text-brand uppercase">Step-by-Step Solution / चरणबद्ध हल</p>
             {hasContent(q.answer) && (
               <div className="mb-3 rounded-lg bg-brand-soft/50 p-2.5 text-xs font-semibold text-brand">
-                Final Answer: {t(q.answer)}
+                Final Answer:
+                <RichContent html={t(q.answer)} className="mt-1 text-xs font-semibold text-brand" />
               </div>
             )}
             <RichContent html={t(q.solution)} />

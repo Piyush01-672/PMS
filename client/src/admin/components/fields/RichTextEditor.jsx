@@ -1,9 +1,12 @@
+import { MathNode, mathContent } from './MathNode.js';
+import { prepareRichHtml } from '@/components/content/mathContent.js';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
-import Image from '@tiptap/extension-image';
+import { ContentImage } from './ContentImage.js';
+import { ImageDialog } from './ImageDialog.jsx';
 import {
   AlignCenter,
   AlignLeft,
@@ -27,7 +30,7 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -35,8 +38,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { RichContent } from '@/components/content/RichContent.jsx';
 import { cn } from '@/lib/utils';
-import { MediaPicker } from '../media/MediaPicker.jsx';
-import { FormulaInput } from './FormulaInput.jsx';
+import { FormulaInput, latexError } from './FormulaInput.jsx';
+import { normalizeMath } from '@/components/content/mathContent.js';
 
 const QUICK_MATH_SNIPPETS = [
   { label: 'Fraction', value: '\\frac{a}{b}' },
@@ -49,22 +52,10 @@ const QUICK_MATH_SNIPPETS = [
   { label: 'Integral', value: '\\int_{a}^{b} f(x)\\,dx' },
 ];
 
-function escapeMathAttribute(value) {
-  return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
-}
-
-function mathMarkup(latex, displayMode = false) {
-  const value = String(latex || '').trim();
-  if (!value) return '';
-  const cls = displayMode ? 'math-display' : 'math-inline';
-  return `<span class="${cls}" data-latex="${escapeMathAttribute(value)}" data-type="math"></span>`;
-}
-
 function detectMathFromText(value) {
   if (!value) return null;
   const text = String(value).replace(/\u00a0/g, ' ').trim();
   if (!text) return null;
-  const mathish = /(?:\\(?:frac|sqrt|sum|prod|int|lim|left|right|cdot|times|pi|theta)|[A-Za-z0-9]+\s*\/\s*[A-Za-z0-9]+|[=<>≤≥±÷×^_]|\\\[|\\\(|\$\$|\$)/;
   if (/[=<>≤≥±÷×^_]/.test(text) || /\\(?:frac|sqrt|sum|prod|int|lim)/.test(text) || /\b[A-Za-z0-9]\s*\/\s*[A-Za-z0-9]/.test(text)) {
     return text;
   }
@@ -123,7 +114,10 @@ function extractMathFromClipboard(event) {
       const latexNode = doc.querySelector('[data-latex]');
       if (latexNode) {
         const latex = latexNode.getAttribute('data-latex');
-        if (latex) return { latex, display: latexNode.classList.contains('math-display') };
+        const remaining = doc.body.cloneNode(true);
+        remaining.querySelector('[data-latex]')?.remove();
+        if (latex && !remaining.textContent.trim() && !remaining.querySelector('img,table,[data-latex]')) return { latex, display: latexNode.classList.contains('math-display') };
+        return null;
       }
 
       const mathNode = doc.querySelector('math');
@@ -132,17 +126,14 @@ function extractMathFromClipboard(event) {
         if (latex) return { latex, display: true };
       }
 
-      const text = doc.body.textContent || '';
-      const latex = detectMathFromText(text);
-      if (latex) return { latex, display: /\\(?:frac|sqrt|sum|prod|int|lim)|\\\[|\\\(|\$\$/.test(latex) };
+
     } catch {
       // ignore clipboard parse errors and fall back to plain text below
     }
   }
 
   const plain = data.getData('text/plain') || '';
-  const latex = detectMathFromText(plain);
-  if (latex) return { latex, display: false };
+  if (/^\s*(?:\$\$[\s\S]*\$\$|\$[^$]+\$|\\\([\s\S]*\\\)|\\\[[\s\S]*\\\])\s*$/.test(plain)) return normalizeMath(plain);
 
   return null;
 }
@@ -199,9 +190,9 @@ function FormulaDialog({ open, onOpenChange, onInsert, defaultLatex = '', defaul
             Cancel
           </Button>
           <Button
-            disabled={!latex.trim()}
+            disabled={!latex.trim() || Boolean(latexError(normalizeMath(latex, display).latex))}
             onClick={() => {
-              onInsert(display ? `$$${latex.trim()}$$` : `$${latex.trim()}$`, display);
+              onInsert(latex.trim(), display);
               setLatex('');
               onOpenChange(false);
             }}
@@ -214,8 +205,8 @@ function FormulaDialog({ open, onOpenChange, onInsert, defaultLatex = '', defaul
   );
 }
 
-/** TipTap editor. Output is HTML (sanitized again by the server). Math is typed as $…$ / $$…$$. */
-export default function RichTextEditor({ value, onChange, placeholder, minimal = false, ariaLabel, lang }) {
+/** Shared CMS editor. Atomic math and image nodes serialize to sanitized HTML. */
+export default function RichTextEditor({ value, onChange, placeholder, ariaLabel, lang }) {
   const [formulaOpen, setFormulaOpen] = useState(false);
   const [formulaSeed, setFormulaSeed] = useState('');
   const [formulaDisplay, setFormulaDisplay] = useState(false);
@@ -223,6 +214,8 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [preview, setPreview] = useState(false);
+  const imageSelection = useRef(null);
+  const [imageSeed, setImageSeed] = useState({});
 
   const editor = useEditor({
     extensions: [
@@ -233,23 +226,23 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
       TableKit.configure({ table: { resizable: false } }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Highlight,
-      Image.configure({ inline: false }),
+      MathNode,
+      ContentImage,
     ],
-    content: value || '',
+    content: prepareRichHtml(value),
     editorProps: {
+      handlePaste: (_view, event) => {
+        const math = extractMathFromClipboard(event);
+        if (!math) return false;
+        editor.commands.insertContent(mathContent(math.latex, math.display));
+        return true;
+      },
       attributes: {
         class: 'rich',
         'aria-label': ariaLabel || 'Rich text editor',
         'data-placeholder': placeholder || '',
         ...(lang ? { lang } : {}),
       },
-    },
-    onPaste: ({ editor, event }) => {
-      const math = extractMathFromClipboard(event);
-      if (!math) return false;
-      event.preventDefault();
-      editor.commands.insertContent(mathMarkup(math.latex, math.display), { parse: false });
-      return true;
     },
     onUpdate: ({ editor: instance }) => onChange(instance.isEmpty ? '' : instance.getHTML()),
   });
@@ -271,6 +264,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
             quote: e.isActive('blockquote'),
             link: e.isActive('link'),
             table: e.isActive('table'),
+            image: e.isActive('image'),
             left: e.isActive({ textAlign: 'left' }),
             center: e.isActive({ textAlign: 'center' }),
             right: e.isActive({ textAlign: 'right' }),
@@ -279,6 +273,14 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
           }
         : {},
   });
+
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || !editor.schema) return;
+    const content = prepareRichHtml(value);
+    if (content !== editor.getHTML()) {
+      editor.commands.setContent(content, { emitUpdate: false });
+    }
+  }, [editor, value]);
 
   if (!editor) return <div className="min-h-28 rounded-lg border bg-muted/40" />;
   const chain = () => editor.chain().focus();
@@ -296,7 +298,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
       openMathDialog('', false);
       return;
     }
-    editor.chain().deleteSelection().insertContent(mathMarkup(latex, false), { parse: false }).run();
+    editor.chain().deleteSelection().insertContent(mathContent(latex, false)).run();
   };
 
   const applyLink = () => {
@@ -317,8 +319,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
         <ToolButton label="Underline" active={state.underline} onClick={() => chain().toggleUnderline().run()}>
           <UnderlineIcon className="size-4" />
         </ToolButton>
-        {!minimal && (
-          <>
+        <>
             <ToolButton label="Strikethrough" active={state.strike} onClick={() => chain().toggleStrike().run()}>
               <Strikethrough className="size-4" />
             </ToolButton>
@@ -332,16 +333,14 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
             <ToolButton label="Sub-heading" active={state.h3} onClick={() => chain().toggleHeading({ level: 3 }).run()}>
               <Heading3 className="size-4" />
             </ToolButton>
-          </>
-        )}
+        </>
         <ToolButton label="Bullet list" active={state.bullet} onClick={() => chain().toggleBulletList().run()}>
           <List className="size-4" />
         </ToolButton>
         <ToolButton label="Numbered list" active={state.ordered} onClick={() => chain().toggleOrderedList().run()}>
           <ListOrdered className="size-4" />
         </ToolButton>
-        {!minimal && (
-          <>
+        <>
             <ToolButton label="Quote" active={state.quote} onClick={() => chain().toggleBlockquote().run()}>
               <Quote className="size-4" />
             </ToolButton>
@@ -355,8 +354,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
             <ToolButton label="Align right" active={state.right} onClick={() => chain().setTextAlign('right').run()}>
               <AlignRight className="size-4" />
             </ToolButton>
-          </>
-        )}
+        </>
         <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" />
         <ToolButton
           label="Link"
@@ -368,30 +366,22 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
         >
           <LinkIcon className="size-4" />
         </ToolButton>
-        <ToolButton label="Insert fraction" onClick={() => openMathDialog('\\frac{a}{b}', false)}>
-          <Sigma className="size-4" />
-        </ToolButton>
-        <ToolButton label="Insert equation" onClick={() => openMathDialog('x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}', false)}>
-          <Sigma className="size-4" />
-        </ToolButton>
         <ToolButton label="Convert to math" onClick={convertSelectionToMath}>
           <Sigma className="size-4" />
         </ToolButton>
-        <ToolButton label="Insert symbols" onClick={() => openMathDialog('\\times \\sqrt{x}', false)}>
-          <Sigma className="size-4" />
-        </ToolButton>
-        <ToolButton label="Preview equation" onClick={() => openMathDialog(editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' '), false)}>
-          <Eye className="size-4" />
-        </ToolButton>
-        <ToolButton label="Edit equation" onClick={() => openMathDialog(editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' '), false)}>
+        <ToolButton label="Edit equation" onClick={() => openMathDialog(editor.getAttributes('math').latex || editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to, ' '), editor.getAttributes('math').display || false)}>
           <Eye className="size-4" />
         </ToolButton>
         <ToolButton label="Insert formula (LaTeX)" onClick={() => openMathDialog('', false)}>
           <Sigma className="size-4" />
         </ToolButton>
-        {!minimal && (
-          <>
-            <ToolButton label="Insert image" onClick={() => setMediaOpen(true)}>
+        <>
+            <ToolButton label={state.image ? 'Edit image' : 'Insert image'} onClick={() => {
+              const { from, to } = editor.state.selection;
+              imageSelection.current = { from, to, replace: editor.isActive('image') };
+              setImageSeed(editor.isActive('image') ? editor.getAttributes('image') : {});
+              setMediaOpen(true);
+            }}>
               <ImagePlus className="size-4" />
             </ToolButton>
             <DropdownMenu>
@@ -413,8 +403,7 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </>
-        )}
+        </>
         <span className="mx-1 h-5 w-px bg-border" aria-hidden="true" />
         <ToolButton label="Clear formatting" onClick={() => chain().unsetAllMarks().clearNodes().run()}>
           <RemoveFormatting className="size-4" />
@@ -446,19 +435,24 @@ export default function RichTextEditor({ value, onChange, placeholder, minimal =
         defaultLatex={formulaSeed}
         defaultDisplay={formulaDisplay}
         onInsert={(text, display) => {
-          const matches = String(text || '').match(/^\$\$?(.*)\$\$?$/s);
-          const latex = (matches ? matches[1] : String(text || '')).trim();
+          const latex = String(text || '').trim();
           if (!latex) return;
-          chain().insertContent(mathMarkup(latex, display), { parse: false }).run();
+          chain().insertContent(mathContent(latex, display)).run();
         }}
       />
-      <MediaPicker
+      <ImageDialog
         open={mediaOpen}
         onOpenChange={setMediaOpen}
-        onSelect={(media) => {
-          const item = Array.isArray(media) ? media[0] : media;
-          if (item?.url) chain().setImage({ src: item.url, alt: item.alt?.en || item.alt?.hi || item.title || '' }).run();
+        initial={imageSeed}
+        onInsert={(attrs) => {
+          const selected = imageSelection.current;
+          if (!selected) return;
+          chain().insertContentAt(selected.replace ? { from: selected.from, to: selected.to } : selected.to, { type: 'image', attrs }).run();
         }}
+        onRemove={imageSelection.current?.replace ? () => {
+          const { from, to } = imageSelection.current;
+          chain().deleteRange({ from, to }).run();
+        } : undefined}
       />
       <Dialog open={linkOpen} onOpenChange={setLinkOpen}>
         <DialogContent>

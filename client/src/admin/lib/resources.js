@@ -78,6 +78,7 @@ export function useResourceMutations(resource) {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['admin', resource] });
     queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+    queryClient.invalidateQueries({ queryKey: ['resolve'] });
   };
   const onError = (error) => toast.error(errorMessage(error));
 

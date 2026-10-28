@@ -1,3 +1,4 @@
+import { hasRichContent as filled } from '@/components/content/mathContent.js';
 import { lazy, Suspense, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Field } from './Fields.jsx';
@@ -10,7 +11,6 @@ const TABS = [
   { key: 'mixed', label: 'Mixed' },
 ];
 
-const filled = (html) => Boolean(String(html || '').replace(/<[^>]+>/g, '').trim() || /<img|<table/.test(html || ''));
 
 /** Rich text in हिंदी / English / Mixed. Each tab keeps its own editor so nothing is auto-translated. */
 export function RichL10nField({ label, hint, error, required, value, onChange, modes = ['hi', 'en', 'mixed'], minimal, placeholder, className }) {

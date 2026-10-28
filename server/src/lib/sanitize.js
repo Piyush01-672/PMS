@@ -14,6 +14,7 @@ const RICH_OPTIONS = {
   allowedAttributes: {
     a: ['href', 'target', 'rel', 'title'],
     img: ['src', 'alt', 'title', 'width', 'height'],
+    figure: ['data-image', 'data-align', 'style'],
     span: ['class', 'data-latex', 'data-type'],
     div: ['class', 'data-latex', 'data-type'],
     mark: ['data-color'],
@@ -33,6 +34,7 @@ const RICH_OPTIONS = {
     code: ['language-latex', 'language-text'],
   },
   allowedStyles: {
+    figure: { width: [/^(?:[1-9]\d?|100)%$/, /^(?:[1-9]\d{0,2}|[1-3]\d{3}|40\d{2})px$/] },
     '*': { 'text-align': TEXT_ALIGN },
     col: { width: [/^\d+(px|%)$/], 'min-width': [/^\d+(px|%)$/] },
   },

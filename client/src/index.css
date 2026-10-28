@@ -230,6 +230,12 @@
   .rich code { @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.9em]; }
   .rich hr { @apply my-6; }
   .rich img { @apply h-auto max-w-full rounded-lg; }
+  .rich figure[data-image] { max-width: 100%; }
+  .rich figure[data-image] img { width: 100%; height: auto; }
+  .rich figure[data-align="center"] { margin-left: auto; margin-right: auto; }
+  .rich figure[data-align="right"] { margin-left: auto; margin-right: 0; }
+  .rich figure[data-align="left"] { margin-left: 0; margin-right: auto; }
+  .rich figcaption { @apply mt-2 text-center text-sm text-muted-foreground; }
   .rich .table-scroll { @apply my-4 overflow-x-auto rounded-lg border; }
   .rich table { @apply w-full border-collapse text-sm; }
   .rich th { @apply border-b bg-muted px-3 py-2 text-start font-semibold; }
